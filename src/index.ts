@@ -12,14 +12,17 @@ import { runTool, tools, toolsByName } from "./tools/index.js";
 
 const PACKAGE_NAME = "@sonarapp/mcp";
 const SERVER_NAME = "sonar";
-const SERVER_VERSION = "0.5.0";
+const SERVER_VERSION = "0.6.0";
 
 function readConfigFromEnv(): { apiKey: string; baseUrl: string } {
   const apiKey = process.env.SONAR_API_KEY;
   const baseUrl = process.env.SONAR_API_URL ?? "https://trysonar.app";
   if (!apiKey) {
+    // Warn but keep serving: the handshake and tools/list work keyless, and
+    // registry inspectors (Glama, Smithery) probe exactly this way. Tool
+    // calls without a key get an actionable 401 from the API as tool output.
     process.stderr.write(
-      `${PACKAGE_NAME}: SONAR_API_KEY is not set.\n` +
+      `${PACKAGE_NAME}: SONAR_API_KEY is not set — tool calls will fail.\n` +
         `Get an API key at https://trysonar.app/developers and pass it via the\n` +
         `MCP server's "env" config:\n\n` +
         `  {\n` +
@@ -32,9 +35,8 @@ function readConfigFromEnv(): { apiKey: string; baseUrl: string } {
         `    }\n` +
         `  }\n`
     );
-    process.exit(1);
   }
-  return { apiKey, baseUrl };
+  return { apiKey: apiKey ?? "", baseUrl };
 }
 
 export function createServer(config?: { apiKey: string; baseUrl: string }) {

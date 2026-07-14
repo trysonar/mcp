@@ -1,6 +1,6 @@
 import { z } from "zod";
 import type { ApiResponse, AppLookup } from "../types.js";
-import { storeSchema, countrySchema, type ToolDefinition } from "./shared.js";
+import { readAnnotations, storeSchema, countrySchema, type ToolDefinition } from "./shared.js";
 
 const inputSchema = z.object({
   store: storeSchema,
@@ -18,6 +18,7 @@ export const appLookupTool: ToolDefinition<typeof inputSchema> = {
   description:
     "Look up a single app by its store ID. Returns app metadata including name, developer, category, rating, reviews, installs (Android), and price.",
   inputSchema,
+  annotations: readAnnotations,
   async handler(args, client) {
     const res = await client.get<ApiResponse<AppLookup>>("/api/v1/apps/lookup", {
       store: args.store,

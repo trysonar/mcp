@@ -1,6 +1,6 @@
 import { z } from "zod";
 import type { ApiResponse, KeywordSearchResult } from "../types.js";
-import { storeSchema, countrySchema, type ToolDefinition } from "./shared.js";
+import { readAnnotations, storeSchema, countrySchema, type ToolDefinition } from "./shared.js";
 
 const inputSchema = z
   .object({
@@ -36,6 +36,7 @@ export const keywordMetricsTool: ToolDefinition<typeof inputSchema> = {
   description:
     "Difficulty + popularity for a specific keyword (or up to 25 in bulk). Use this when you already know which keywords you care about — costs 1 credit per keyword. Use sonar_keyword_search instead when you want related keyword ideas alongside metrics.",
   inputSchema,
+  annotations: readAnnotations,
   async handler(args, client) {
     if (args.keyword) {
       const res = await client.get<ApiResponse<KeywordSearchResult>>(

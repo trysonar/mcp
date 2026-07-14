@@ -1,6 +1,6 @@
 import { z } from "zod";
 import type { ApiResponse } from "../types.js";
-import type { ToolDefinition } from "./shared.js";
+import { readAnnotations, writeAnnotations, type ToolDefinition } from "./shared.js";
 
 // Layout documents are validated server-side against the canonical zod
 // schema; the tools pass them through as opaque objects. Agents should read
@@ -51,6 +51,7 @@ export const listScreenshotSetsTool: ToolDefinition<typeof listInputSchema> = {
   description:
     "List a product's app-store screenshot sets (metadata only: store, device size, locales, studio_url). Use sonar_get_screenshot_set for full layouts.",
   inputSchema: listInputSchema,
+  annotations: readAnnotations,
   async handler(args, client) {
     const res = await client.get<ApiResponse<unknown>>(
       "/api/v1/screenshots/sets",
@@ -95,6 +96,7 @@ export const createScreenshotSetTool: ToolDefinition<typeof createInputSchema> =
   description:
     "Create an app-store screenshot set for a product. Read sonar_screenshot_layout_guide first, then author the screens array. The set is immediately visible/editable for humans in the Screenshot Studio (studio_url in the response). Requires a write-scope API key.",
   inputSchema: createInputSchema,
+  annotations: writeAnnotations,
   async handler(args, client) {
     const res = await client.request<ApiResponse<unknown>>(
       "POST",
@@ -120,6 +122,7 @@ export const getScreenshotSetTool: ToolDefinition<typeof getInputSchema> = {
   description:
     "Fetch a screenshot set in full: every screen's layout JSON plus per-screen translation overrides keyed by locale. By default inline image data is replaced with placeholders to keep the response readable.",
   inputSchema: getInputSchema,
+  annotations: readAnnotations,
   async handler(args, client) {
     const res = await client.get<ApiResponse<unknown>>(
       `/api/v1/screenshots/sets/${encodeURIComponent(args.set_id)}`
@@ -157,6 +160,11 @@ export const updateScreenshotSetTool: ToolDefinition<typeof updateSetInputSchema
   description:
     "Rename a screenshot set, replace its extra-locale list, and/or reorder its screens. Returns the updated set (with image data stripped). Requires a write-scope API key.",
   inputSchema: updateSetInputSchema,
+  annotations: {
+    readOnlyHint: false,
+    destructiveHint: false,
+    idempotentHint: true,
+  },
   async handler(args, client) {
     const { set_id, ...body } = args;
     const res = await client.request<ApiResponse<unknown>>(
@@ -177,6 +185,11 @@ export const deleteScreenshotSetTool: ToolDefinition<typeof deleteSetInputSchema
   description:
     "Permanently delete a screenshot set and everything in it (screens, translations). Irreversible — confirm with the user before deleting work they may want. Requires a write-scope API key.",
   inputSchema: deleteSetInputSchema,
+  annotations: {
+    readOnlyHint: false,
+    destructiveHint: true,
+    idempotentHint: true,
+  },
   async handler(args, client) {
     const res = await client.request<ApiResponse<unknown>>(
       "DELETE",

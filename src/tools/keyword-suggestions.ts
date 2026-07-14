@@ -1,6 +1,6 @@
 import { z } from "zod";
 import type { ApiResponse, KeywordSuggestion } from "../types.js";
-import { storeSchema, countrySchema, type ToolDefinition } from "./shared.js";
+import { readAnnotations, storeSchema, countrySchema, type ToolDefinition } from "./shared.js";
 
 const inputSchema = z.object({
   seed: z
@@ -16,6 +16,7 @@ export const keywordSuggestionsTool: ToolDefinition<typeof inputSchema> = {
   description:
     "Get autocomplete suggestions for a seed keyword from the App Store or Google Play. Returns terms with a priority score (higher = more searched). Lighter and faster than sonar_keyword_search — use when you only need term ideas without difficulty/popularity scoring.",
   inputSchema,
+  annotations: readAnnotations,
   async handler(args, client) {
     const res = await client.get<ApiResponse<KeywordSuggestion[]>>(
       "/api/v1/keywords/suggestions",

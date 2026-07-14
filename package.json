@@ -25,6 +25,10 @@
   "license": "MIT",
   "author": "Peter Sutarik",
   "type": "module",
+  "main": "dist/index.mjs",
+  "exports": {
+    ".": "./dist/index.mjs"
+  },
   "bin": {
     "sonar-mcp": "dist/index.mjs"
   },

@@ -1,6 +1,6 @@
 import { z } from "zod";
 import type { ApiResponse, KeywordSearchResult } from "../types.js";
-import { storeSchema, countrySchema, type ToolDefinition } from "./shared.js";
+import { readAnnotations, storeSchema, countrySchema, type ToolDefinition } from "./shared.js";
 
 const inputSchema = z.object({
   query: z
@@ -16,6 +16,7 @@ export const keywordSearchTool: ToolDefinition<typeof inputSchema> = {
   description:
     "Research a keyword and related terms. Returns difficulty (0-100), popularity score, and results count for the seed keyword plus related autocomplete suggestions. Use this to find keywords worth targeting.",
   inputSchema,
+  annotations: readAnnotations,
   async handler(args, client) {
     const res = await client.get<ApiResponse<KeywordSearchResult[]>>(
       "/api/v1/keywords/search",

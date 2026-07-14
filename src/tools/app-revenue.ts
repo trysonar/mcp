@@ -1,6 +1,6 @@
 import { z } from "zod";
 import type { ApiResponse, RevenueResult } from "../types.js";
-import { storeSchema, countrySchema, type ToolDefinition } from "./shared.js";
+import { readAnnotations, storeSchema, countrySchema, type ToolDefinition } from "./shared.js";
 
 const inputSchema = z.object({
   store: storeSchema,
@@ -18,6 +18,7 @@ export const appRevenueTool: ToolDefinition<typeof inputSchema> = {
   description:
     "Estimate monthly revenue for an app, based on install counts, ratings, and category benchmarks. Returns the dollar estimate, a confidence grade (high/medium/low) with the factors behind it, and the methodology used — always communicate the confidence alongside the number.",
   inputSchema,
+  annotations: readAnnotations,
   async handler(args, client) {
     const res = await client.get<ApiResponse<RevenueResult>>(
       "/api/v1/apps/revenue",

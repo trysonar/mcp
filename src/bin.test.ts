@@ -12,14 +12,17 @@ import { describe, it, expect, beforeAll } from "vitest";
 
 const DIST = resolve(__dirname, "..", "dist", "index.mjs");
 
-async function sendInitialize(entry: string): Promise<{
+async function sendInitialize(
+  entry: string,
+  env: NodeJS.ProcessEnv = { ...process.env, SONAR_API_KEY: "aso_bin_test" }
+): Promise<{
   stdout: string;
   stderr: string;
   exitCode: number | null;
 }> {
   return new Promise((resolveP, reject) => {
     const child = spawn(process.execPath, [entry], {
-      env: { ...process.env, SONAR_API_KEY: "aso_bin_test" },
+      env,
       stdio: ["pipe", "pipe", "pipe"],
     });
     let stdout = "";
@@ -61,6 +64,15 @@ describe("bin entrypoint", () => {
     const { stdout } = await sendInitialize(DIST);
     expect(stdout).toContain('"jsonrpc"');
     expect(stdout).toContain('"protocolVersion"');
+  });
+
+  it("still serves the handshake without SONAR_API_KEY (registry inspectors probe keyless)", async () => {
+    const env = { ...process.env };
+    delete env.SONAR_API_KEY;
+    const { stdout, stderr } = await sendInitialize(DIST, env);
+    expect(stdout).toContain('"jsonrpc"');
+    expect(stdout).toContain('"protocolVersion"');
+    expect(stderr).toContain("SONAR_API_KEY is not set");
   });
 
   it("responds to initialize when launched via a symlink (bin shim parity)", async () => {

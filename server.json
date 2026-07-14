@@ -7,6 +7,20 @@
     "url": "https://github.com/trysonar/mcp",
     "source": "github"
   },
+  "remotes": [
+    {
+      "type": "streamable-http",
+      "url": "https://trysonar.app/mcp",
+      "headers": [
+        {
+          "name": "Authorization",
+          "description": "Bearer <Sonar API key (aso_...)>. Create one at https://trysonar.app/developers",
+          "isRequired": true,
+          "isSecret": true
+        }
+      ]
+    }
+  ],
   "packages": [
     {
       "registryType": "npm",

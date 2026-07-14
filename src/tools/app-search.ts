@@ -1,6 +1,6 @@
 import { z } from "zod";
 import type { ApiResponse, AppLookup } from "../types.js";
-import { storeSchema, countrySchema, type ToolDefinition } from "./shared.js";
+import { readAnnotations, storeSchema, countrySchema, type ToolDefinition } from "./shared.js";
 
 const inputSchema = z.object({
   query: z
@@ -23,6 +23,7 @@ export const appSearchTool: ToolDefinition<typeof inputSchema> = {
   description:
     "Search apps in the App Store or Google Play by keyword. Returns ranked list of apps with metadata (results are returned in store ranking order).",
   inputSchema,
+  annotations: readAnnotations,
   async handler(args, client) {
     const res = await client.get<ApiResponse<AppLookup[]>>("/api/v1/apps/search", {
       q: args.query,

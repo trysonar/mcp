@@ -1,6 +1,6 @@
 import { z } from "zod";
 import type { ApiResponse, Review } from "../types.js";
-import { storeSchema, countrySchema, type ToolDefinition } from "./shared.js";
+import { readAnnotations, storeSchema, countrySchema, type ToolDefinition } from "./shared.js";
 
 const inputSchema = z.object({
   store: storeSchema,
@@ -43,6 +43,7 @@ export const appReviewsTool: ToolDefinition<typeof inputSchema> = {
   description:
     "Fetch user reviews for an app. Supports filtering by star rating range and sorting by recent or helpful. Useful for sentiment analysis, feature-request mining, and competitive research.",
   inputSchema,
+  annotations: readAnnotations,
   async handler(args, client) {
     const res = await client.get<ApiResponse<Review[]>>("/api/v1/apps/reviews", {
       store: args.store,

@@ -1,6 +1,6 @@
 import { z } from "zod";
 import type { ApiResponse } from "../types.js";
-import type { ToolDefinition } from "./shared.js";
+import { readAnnotations, type ToolDefinition } from "./shared.js";
 
 // Condensed from docs/screenshot-layout-format.md — the canonical write-side
 // contract is the zod schema behind the API, which rejects anything invalid
@@ -113,6 +113,7 @@ export const screenshotLayoutGuideTool: ToolDefinition<typeof guideInputSchema> 
   description:
     "The layout-format reference for Sonar screenshot sets. Call this ONCE before creating or editing screenshot layouts — it documents the layout JSON schema, coordinate system, image handling (remote URLs), flowing background shapes, fonts, translation overrides, and the recommended workflow.",
   inputSchema: guideInputSchema,
+  annotations: readAnnotations,
   async handler() {
     return LAYOUT_GUIDE;
   },
@@ -125,6 +126,7 @@ export const screenshotDevicesTool: ToolDefinition<typeof devicesInputSchema> = 
   description:
     "List the device sizes supported for app-store screenshot sets, with their canvas dimensions (the pixel coordinate space all layouts use) and which store each belongs to. Pick a device here before sonar_create_screenshot_set.",
   inputSchema: devicesInputSchema,
+  annotations: readAnnotations,
   async handler(_args, client) {
     const res = await client.get<ApiResponse<unknown>>(
       "/api/v1/screenshots/devices"

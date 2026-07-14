@@ -1,6 +1,6 @@
 import { z } from "zod";
 import type { ApiResponse } from "../types.js";
-import type { ToolDefinition } from "./shared.js";
+import { writeAnnotations, type ToolDefinition } from "./shared.js";
 import { stripImageData } from "./screenshot-sets.js";
 
 const layoutSchema = z
@@ -19,6 +19,7 @@ export const addScreenshotTool: ToolDefinition<typeof addInputSchema> = {
   description:
     "Append a screen to a screenshot set (at the end; reorder with sonar_update_screenshot_set). Requires a write-scope API key.",
   inputSchema: addInputSchema,
+  annotations: writeAnnotations,
   async handler(args, client) {
     const res = await client.request<ApiResponse<unknown>>(
       "POST",
@@ -44,6 +45,11 @@ export const updateScreenshotTool: ToolDefinition<typeof updateInputSchema> = {
   description:
     "Replace one screen's layout in a screenshot set. Whole-document replace — fetch the current layout, modify it, send it back. The change shows up immediately in the Screenshot Studio for human review. Requires a write-scope API key.",
   inputSchema: updateInputSchema,
+  annotations: {
+    readOnlyHint: false,
+    destructiveHint: false,
+    idempotentHint: true,
+  },
   async handler(args, client) {
     const res = await client.request<ApiResponse<unknown>>(
       "PUT",
@@ -63,6 +69,11 @@ export const deleteScreenshotTool: ToolDefinition<typeof deleteInputSchema> = {
   description:
     "Delete one screen from a screenshot set. A set keeps at least one screen — deleting the last one is rejected. Requires a write-scope API key.",
   inputSchema: deleteInputSchema,
+  annotations: {
+    readOnlyHint: false,
+    destructiveHint: true,
+    idempotentHint: true,
+  },
   async handler(args, client) {
     const res = await client.request<ApiResponse<unknown>>(
       "DELETE",
@@ -102,6 +113,11 @@ export const setScreenshotTranslationsTool: ToolDefinition<
   description:
     "Write a locale's translation overrides for screens in a screenshot set (text copy, localized captures/images). Geometry and styling always come from the source layout; anything not overridden falls back to it. The locale is auto-enabled on the set. Requires a write-scope API key.",
   inputSchema: translationsInputSchema,
+  annotations: {
+    readOnlyHint: false,
+    destructiveHint: false,
+    idempotentHint: true,
+  },
   async handler(args, client) {
     const res = await client.request<ApiResponse<unknown>>(
       "PUT",
