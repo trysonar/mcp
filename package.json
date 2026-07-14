@@ -1,0 +1,58 @@
+{
+  "name": "@sonarapp/mcp",
+  "version": "0.6.0",
+  "mcpName": "app.trysonar/sonar",
+  "description": "Sonar MCP server — App Store Optimization tools for AI agents (Claude, Cursor, Cline)",
+  "keywords": [
+    "mcp",
+    "model-context-protocol",
+    "aso",
+    "app-store-optimization",
+    "ios",
+    "android",
+    "app-store",
+    "google-play",
+    "sonar",
+    "claude",
+    "ai-tools"
+  ],
+  "homepage": "https://trysonar.app",
+  "bugs": "https://github.com/trysonar/mcp/issues",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/trysonar/mcp.git"
+  },
+  "license": "MIT",
+  "author": "Peter Sutarik",
+  "type": "module",
+  "bin": {
+    "sonar-mcp": "dist/index.mjs"
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "engines": {
+    "node": ">=20"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsx src/index.ts",
+    "test": "vitest run",
+    "prepublishOnly": "npm run build"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.29.0",
+    "zod": "^4.3.6"
+  },
+  "devDependencies": {
+    "@types/node": "^25.1.0",
+    "tsup": "^8.5.1",
+    "tsx": "^4.21.0",
+    "typescript": "^5",
+    "vitest": "^3.2.4"
+  }
+}
