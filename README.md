@@ -2,6 +2,7 @@
 
 [![npm](https://img.shields.io/npm/v/@sonarapp/mcp.svg)](https://www.npmjs.com/package/@sonarapp/mcp)
 [![license](https://img.shields.io/npm/l/@sonarapp/mcp.svg)](./LICENSE)
+[![smithery badge](https://smithery.ai/badge/sutarik-peter/sonar)](https://smithery.ai/servers/sutarik-peter/sonar)
 
 The official **Sonar** MCP server — App Store Optimization tools for AI agents.
 
