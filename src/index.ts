@@ -12,17 +12,20 @@ import { runTool, tools, toolsByName } from "./tools/index.js";
 
 const PACKAGE_NAME = "@sonarapp/mcp";
 const SERVER_NAME = "sonar";
-const SERVER_VERSION = "0.6.0";
+const SERVER_VERSION = "0.7.0";
 
-function readConfigFromEnv(): { apiKey: string; baseUrl: string } {
+function readConfigFromEnv(): ServerConfig {
   const apiKey = process.env.SONAR_API_KEY;
   const baseUrl = process.env.SONAR_API_URL ?? "https://trysonar.app";
   if (!apiKey) {
-    // Warn but keep serving: the handshake and tools/list work keyless, and
-    // registry inspectors (Glama, Smithery) probe exactly this way. Tool
-    // calls without a key get an actionable 401 from the API as tool output.
+    // Inform but keep serving: keyless callers get the API's free tier —
+    // app search/lookup, keyword suggestions, ASO score, keyword extraction,
+    // and a small daily allowance of keyword metrics (per-IP limits). Other
+    // tools return an actionable 401 from the API as tool output.
     process.stderr.write(
-      `${PACKAGE_NAME}: SONAR_API_KEY is not set — tool calls will fail.\n` +
+      `${PACKAGE_NAME}: SONAR_API_KEY is not set — running in free mode.\n` +
+        `Free (limited/day): app search & lookup, keyword suggestions, ASO\n` +
+        `score, keyword extraction, keyword metrics. Other tools need a key.\n` +
         `Get an API key at https://trysonar.app/developers and pass it via the\n` +
         `MCP server's "env" config:\n\n` +
         `  {\n` +
@@ -39,9 +42,19 @@ function readConfigFromEnv(): { apiKey: string; baseUrl: string } {
   return { apiKey: apiKey ?? "", baseUrl };
 }
 
-export function createServer(config?: { apiKey: string; baseUrl: string }) {
+export interface ServerConfig {
+  apiKey: string;
+  baseUrl: string;
+  extraHeaders?: Record<string, string>;
+  userAgent?: string;
+}
+
+export function createServer(config?: ServerConfig) {
   const cfg = config ?? readConfigFromEnv();
-  const client = createClient(cfg);
+  const client = createClient({
+    ...cfg,
+    userAgent: cfg.userAgent ?? `sonar-mcp/${SERVER_VERSION}`,
+  });
 
   const server = new Server(
     { name: SERVER_NAME, version: SERVER_VERSION },
@@ -51,12 +64,15 @@ export function createServer(config?: { apiKey: string; baseUrl: string }) {
   server.setRequestHandler(ListToolsRequestSchema, async () => ({
     tools: tools.map((tool) => ({
       name: tool.name,
+      title: tool.title,
       description: tool.description,
       inputSchema: z.toJSONSchema(tool.inputSchema, {
         target: "draft-7",
         io: "input",
       }) as Record<string, unknown>,
-      ...(tool.annotations ? { annotations: tool.annotations } : {}),
+      // `annotations.title` is where pre-2025-06-18 clients (and directory
+      // reviewers) look for the display name; emit it in both locations.
+      annotations: { title: tool.title, ...tool.annotations },
     })),
   }));
 

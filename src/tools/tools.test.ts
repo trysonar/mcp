@@ -174,6 +174,14 @@ describe("tools registry", () => {
     }
   });
 
+  it("every tool has a title and a readOnlyHint (directory requirement)", () => {
+    for (const tool of tools) {
+      expect(tool.title.length, tool.name).toBeGreaterThan(2);
+      expect(tool.title.length, tool.name).toBeLessThanOrEqual(40);
+      expect(typeof tool.annotations?.readOnlyHint, tool.name).toBe("boolean");
+    }
+  });
+
   it("toolsByName resolves every registered tool", () => {
     for (const tool of tools) {
       expect(toolsByName[tool.name]).toBe(tool);

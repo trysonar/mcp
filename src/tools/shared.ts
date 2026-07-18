@@ -4,6 +4,11 @@ import { z } from "zod";
 
 export interface ToolDefinition<I extends z.ZodType> {
   name: string;
+  /**
+   * Human-readable display name. Required — the Claude connectors directory
+   * rejects tools without a title.
+   */
+  title: string;
   description: string;
   inputSchema: I;
   /**
@@ -22,6 +27,9 @@ export interface ToolDefinition<I extends z.ZodType> {
 export type Tool = ToolDefinition<z.ZodType>;
 
 export interface McpToolResult {
+  // Index signature keeps this assignable to the SDK's CallToolResult
+  // union (required for the .d.mts build).
+  [key: string]: unknown;
   content: Array<{ type: "text"; text: string }>;
   isError?: boolean;
 }

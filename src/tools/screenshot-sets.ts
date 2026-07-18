@@ -48,6 +48,7 @@ const listInputSchema = z.object({
 
 export const listScreenshotSetsTool: ToolDefinition<typeof listInputSchema> = {
   name: "sonar_list_screenshot_sets",
+  title: "List Screenshot Sets",
   description:
     "List a product's app-store screenshot sets (metadata only: store, device size, locales, studio_url). Use sonar_get_screenshot_set for full layouts.",
   inputSchema: listInputSchema,
@@ -93,6 +94,7 @@ const createInputSchema = z
 
 export const createScreenshotSetTool: ToolDefinition<typeof createInputSchema> = {
   name: "sonar_create_screenshot_set",
+  title: "Create Screenshot Set",
   description:
     "Create an app-store screenshot set for a product. Read sonar_screenshot_layout_guide first, then author the screens array. The set is immediately visible/editable for humans in the Screenshot Studio (studio_url in the response). Requires a write-scope API key.",
   inputSchema: createInputSchema,
@@ -119,6 +121,7 @@ const getInputSchema = z.object({
 
 export const getScreenshotSetTool: ToolDefinition<typeof getInputSchema> = {
   name: "sonar_get_screenshot_set",
+  title: "Get Screenshot Set",
   description:
     "Fetch a screenshot set in full: every screen's layout JSON plus per-screen translation overrides keyed by locale. By default inline image data is replaced with placeholders to keep the response readable.",
   inputSchema: getInputSchema,
@@ -157,6 +160,7 @@ const updateSetInputSchema = z
 
 export const updateScreenshotSetTool: ToolDefinition<typeof updateSetInputSchema> = {
   name: "sonar_update_screenshot_set",
+  title: "Update Screenshot Set",
   description:
     "Rename a screenshot set, replace its extra-locale list, and/or reorder its screens. Returns the updated set (with image data stripped). Requires a write-scope API key.",
   inputSchema: updateSetInputSchema,
@@ -182,6 +186,7 @@ const deleteSetInputSchema = z.object({
 
 export const deleteScreenshotSetTool: ToolDefinition<typeof deleteSetInputSchema> = {
   name: "sonar_delete_screenshot_set",
+  title: "Delete Screenshot Set",
   description:
     "Permanently delete a screenshot set and everything in it (screens, translations). Irreversible — confirm with the user before deleting work they may want. Requires a write-scope API key.",
   inputSchema: deleteSetInputSchema,

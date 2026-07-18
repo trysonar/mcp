@@ -20,6 +20,7 @@ const inputSchema = z.object({
 
 export const keywordRankingsTool: ToolDefinition<typeof inputSchema> = {
   name: "sonar_keyword_rankings",
+  title: "Keyword SERP History",
   description:
     "SERP history for one tracked keyword — which apps ranked in the top results on each measured day, newest first. Use this to see who competes on a keyword and how the top spots shifted over time. The keyword must be tracked in the caller's Sonar workspace. Requires a Full plan (trial counts).",
   inputSchema,

@@ -40,6 +40,7 @@ const inputSchema = z.object({
 
 export const appReviewsTool: ToolDefinition<typeof inputSchema> = {
   name: "sonar_app_reviews",
+  title: "Fetch App Reviews",
   description:
     "Fetch user reviews for an app. Supports filtering by star rating range and sorting by recent or helpful. Useful for sentiment analysis, feature-request mining, and competitive research.",
   inputSchema,

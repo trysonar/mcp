@@ -33,6 +33,7 @@ const inputSchema = z.object({
 
 export const trackAppTool: ToolDefinition<typeof inputSchema> = {
   name: "sonar_track_app",
+  title: "Track App",
   description:
     "WRITE tool — links the second-store version of an existing Sonar product (e.g. the product already tracks the iOS app and you want to add the Android version, or vice versa). Each product holds at most one iOS + one Android app; to start tracking a brand-new app, use sonar_create_product instead. Requires a Full plan (trial counts) and an API key with the write scope.",
   inputSchema,

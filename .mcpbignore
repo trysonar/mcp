@@ -1,0 +1,15 @@
+# Only manifest.json, icon.png, README.md, LICENSE and dist-mcpb/ belong in
+# the .mcpb bundle — everything else is build/dev tooling.
+src/
+scripts/
+dist/
+node_modules/
+*.mcpb
+*.test.ts
+tsup.config.ts
+tsconfig.json
+vitest.config.ts
+server.json
+Dockerfile
+CHANGELOG.md
+package.json

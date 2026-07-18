@@ -1,6 +1,6 @@
 {
   "name": "@sonarapp/mcp",
-  "version": "0.6.0",
+  "version": "0.7.0",
   "mcpName": "app.trysonar/sonar",
   "description": "Sonar MCP server — App Store Optimization tools for AI agents (Claude, Cursor, Cline)",
   "keywords": [
@@ -27,7 +27,10 @@
   "type": "module",
   "main": "dist/index.mjs",
   "exports": {
-    ".": "./dist/index.mjs"
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.mjs"
+    }
   },
   "bin": {
     "sonar-mcp": "dist/index.mjs"
@@ -44,6 +47,7 @@
   },
   "scripts": {
     "build": "tsup",
+    "build:mcpb": "npm run build && node scripts/build-mcpb.mjs",
     "dev": "tsx src/index.ts",
     "test": "vitest run",
     "prepublishOnly": "npm run build"
@@ -58,5 +62,6 @@
     "tsx": "^4.21.0",
     "typescript": "^5",
     "vitest": "^3.2.4"
-  }
+  },
+  "types": "dist/index.d.ts"
 }

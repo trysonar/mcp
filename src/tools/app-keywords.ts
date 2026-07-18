@@ -20,6 +20,7 @@ const inputSchema = z.object({
 
 export const appKeywordsTool: ToolDefinition<typeof inputSchema> = {
   name: "sonar_app_keywords",
+  title: "List App Keywords",
   description:
     "List the keywords tracked for an app in the caller's Sonar workspace, with latest difficulty, popularity, results count, note, and starred_at (favorite/target marker) per keyword. Returns the tracked-keyword ids used by sonar_update_keyword_note and sonar_star_keyword, and the keyword_ids used by sonar_keyword_rankings. Cursor-paginated (default 50 per page). Requires a Full plan (trial counts).",
   inputSchema,

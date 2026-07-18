@@ -3,6 +3,14 @@ import type { ApiError } from "./types.js";
 export interface ClientConfig {
   apiKey: string;
   baseUrl: string;
+  /**
+   * Extra headers attached to every request. Used by the hosted /mcp
+   * transport to forward the end user's IP (with an internal secret) so
+   * keyless free-tier limits apply per USER, not per server egress IP.
+   */
+  extraHeaders?: Record<string, string>;
+  /** User-Agent for usage attribution. `createServer` defaults it to sonar-mcp/<version>. */
+  userAgent?: string;
 }
 
 export interface ApiClient {
@@ -36,7 +44,7 @@ export class SonarApiError extends Error {
 }
 
 export function createClient(config: ClientConfig): ApiClient {
-  const { apiKey, baseUrl } = config;
+  const { apiKey, baseUrl, extraHeaders, userAgent } = config;
 
   // Validate base URL: only HTTPS, except localhost over HTTP for dev.
   let parsed: URL;
@@ -60,8 +68,14 @@ export function createClient(config: ClientConfig): ApiClient {
       response = await fetch(url.toString(), {
         ...init,
         headers: {
-          Authorization: `Bearer ${apiKey}`,
+          // No key → no Authorization header: the API serves a limited free
+          // tier on its anonymous-allowed endpoints (per-IP daily limits).
+          // Sending "Bearer " with an empty key would 401 as an invalid key
+          // format instead of reaching the free tier.
+          ...(apiKey ? { Authorization: `Bearer ${apiKey}` } : {}),
           Accept: "application/json",
+          ...(userAgent ? { "User-Agent": userAgent } : {}),
+          ...(extraHeaders ?? {}),
           ...(init?.headers ?? {}),
         },
       });

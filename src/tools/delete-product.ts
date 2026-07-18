@@ -13,6 +13,7 @@ const inputSchema = z.object({
 
 export const deleteProductTool: ToolDefinition<typeof inputSchema> = {
   name: "sonar_delete_product",
+  title: "Delete Product",
   description:
     "WRITE tool — delete a product and untrack its apps in the caller's Sonar workspace. Requires a Full plan (trial counts) and an API key with the write scope.",
   inputSchema,

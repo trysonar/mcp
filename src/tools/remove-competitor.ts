@@ -19,6 +19,7 @@ const inputSchema = z.object({
 
 export const removeCompetitorTool: ToolDefinition<typeof inputSchema> = {
   name: "sonar_remove_competitor",
+  title: "Remove Competitor",
   description:
     "WRITE tool — remove a competitor from a product in the caller's Sonar workspace. Requires a Full plan (trial counts) and an API key with the write scope.",
   inputSchema,

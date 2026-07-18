@@ -45,6 +45,7 @@ const inputSchema = z.object({
 
 export const createProductTool: ToolDefinition<typeof inputSchema> = {
   name: "sonar_create_product",
+  title: "Create Product",
   description:
     "WRITE tool — creates a product in the caller's Sonar workspace and starts tracking the given app(s). A product is the cross-store unit (one iOS + one Android app, or just one of either). Returns the product id and the Sonar app ids needed by sonar_track_keywords and sonar_track_competitor. Requires a Full plan (trial counts) and an API key with the write scope.",
   inputSchema,

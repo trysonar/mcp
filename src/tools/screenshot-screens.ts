@@ -16,6 +16,7 @@ const addInputSchema = z.object({
 
 export const addScreenshotTool: ToolDefinition<typeof addInputSchema> = {
   name: "sonar_add_screenshot",
+  title: "Add Screenshot",
   description:
     "Append a screen to a screenshot set (at the end; reorder with sonar_update_screenshot_set). Requires a write-scope API key.",
   inputSchema: addInputSchema,
@@ -42,6 +43,7 @@ const updateInputSchema = z.object({
 
 export const updateScreenshotTool: ToolDefinition<typeof updateInputSchema> = {
   name: "sonar_update_screenshot",
+  title: "Update Screenshot",
   description:
     "Replace one screen's layout in a screenshot set. Whole-document replace — fetch the current layout, modify it, send it back. The change shows up immediately in the Screenshot Studio for human review. Requires a write-scope API key.",
   inputSchema: updateInputSchema,
@@ -66,6 +68,7 @@ const deleteInputSchema = z.object({
 
 export const deleteScreenshotTool: ToolDefinition<typeof deleteInputSchema> = {
   name: "sonar_delete_screenshot",
+  title: "Delete Screenshot",
   description:
     "Delete one screen from a screenshot set. A set keeps at least one screen — deleting the last one is rejected. Requires a write-scope API key.",
   inputSchema: deleteInputSchema,
@@ -110,6 +113,7 @@ export const setScreenshotTranslationsTool: ToolDefinition<
   typeof translationsInputSchema
 > = {
   name: "sonar_set_screenshot_translations",
+  title: "Set Screenshot Translations",
   description:
     "Write a locale's translation overrides for screens in a screenshot set (text copy, localized captures/images). Geometry and styling always come from the source layout; anything not overridden falls back to it. The locale is auto-enabled on the set. Requires a write-scope API key.",
   inputSchema: translationsInputSchema,

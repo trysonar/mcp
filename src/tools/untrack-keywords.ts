@@ -26,6 +26,7 @@ const inputSchema = z.object({
 
 export const untrackKeywordsTool: ToolDefinition<typeof inputSchema> = {
   name: "sonar_untrack_keywords",
+  title: "Untrack Keywords",
   description:
     "WRITE tool — bulk-untrack keywords for an app in the caller's Sonar workspace. Pass `all: true` to remove every tracked keyword, OR `ids: [...]` to remove specific ones (exactly one of the two). Requires a Full plan (trial counts) and an API key with the write scope.",
   inputSchema,

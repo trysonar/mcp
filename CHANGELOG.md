@@ -1,5 +1,18 @@
 # @sonarapp/mcp
 
+## 0.7.0
+
+### Minor Changes
+
+- 2ed78f4: Free mode: the server now runs without `SONAR_API_KEY`. Keyless installs get Sonar's anonymous free tier — app search, app lookup, ASO score, keyword extraction, and keyword suggestions (shared 30 requests/day per IP) plus keyword metrics (5 keywords/day per IP). The client omits the `Authorization` header when no key is configured so requests reach the free tier instead of failing key validation, and free-tier tools say so in their descriptions. All other tools return the API's actionable 401 with signup instructions. `ClientConfig`/`createServer` also accept an optional `extraHeaders` map (used by the hosted /mcp transport to forward the end user's IP so free-tier limits apply per user). The client also self-identifies with a `sonar-mcp/<version>` User-Agent (overridable via `userAgent` in `ClientConfig`) so server-side usage stats can attribute MCP traffic, and the package now ships TypeScript declarations.
+- c1b99c4: Revenue estimates now include a `confidence` grade (high/medium/low) and `confidence_factors` explaining it. The CLI prints the grade and factors in table output; the MCP tool description now instructs agents to communicate confidence alongside the number.
+- e8db12c: Starred keywords: mark tracked keywords as favorites/targets. CLI gains `sonar keywords star <id>` / `unstar <id>` and shows a ★ marker in `keywords list`; MCP gains the `sonar_star_keyword` write tool, and `sonar_app_keywords` now returns `note` and `starred_at` per keyword.
+
+### Patch Changes
+
+- 8c7821e: Start and serve the MCP handshake even when SONAR_API_KEY is unset (warn on stderr instead of exiting) — registry inspectors probe keyless; tool calls without a key return an actionable 401 as tool output. All 43 tools now carry MCP annotations (readOnly/destructive/idempotent hints).
+- eb0c134: Point repository and bugs links at the public GitHub mirrors (trysonar/cli, trysonar/mcp) so the Repository link on npm resolves for everyone.
+
 ## 0.6.0
 
 ### Minor Changes

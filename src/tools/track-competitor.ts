@@ -33,6 +33,7 @@ const inputSchema = z.object({
 
 export const trackCompetitorTool: ToolDefinition<typeof inputSchema> = {
   name: "sonar_track_competitor",
+  title: "Track Competitor",
   description:
     "WRITE tool — adds a competitor app under a Sonar product so its keywords and rankings get tracked alongside the product's own app. The product must already have its own app linked in the same store as the competitor. Requires a Full plan (trial counts) and an API key with the write scope.",
   inputSchema,

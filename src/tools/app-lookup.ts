@@ -15,8 +15,9 @@ const inputSchema = z.object({
 
 export const appLookupTool: ToolDefinition<typeof inputSchema> = {
   name: "sonar_app_lookup",
+  title: "Look Up App",
   description:
-    "Look up a single app by its store ID. Returns app metadata including name, developer, category, rating, reviews, installs (Android), and price.",
+    "Look up a single app by its store ID. Returns app metadata including name, developer, category, rating, reviews, installs (Android), and price. Works without an API key (free tier, limited daily use per IP).",
   inputSchema,
   annotations: readAnnotations,
   async handler(args, client) {

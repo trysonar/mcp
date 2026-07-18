@@ -14,6 +14,7 @@ const inputSchema = z.object({
 
 export const listAppsTool: ToolDefinition<typeof inputSchema> = {
   name: "sonar_list_apps",
+  title: "List Tracked Apps",
   description:
     "List the apps tracked in the caller's Sonar workspace (own apps + competitors), each with its latest snapshot (rating, review count, version, installs). Returns the Sonar app UUIDs needed by sonar_get_app, sonar_app_keywords, sonar_app_rankings, and sonar_app_changes. Cursor-paginated (default 100 per page). Requires a Full plan (trial counts).",
   inputSchema,

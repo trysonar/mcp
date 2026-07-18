@@ -15,8 +15,9 @@ const inputSchema = z.object({
 
 export const appAsoScoreTool: ToolDefinition<typeof inputSchema> = {
   name: "sonar_app_aso_score",
+  title: "ASO Score",
   description:
-    "Calculate an ASO (App Store Optimization) audit score (0-100) for an app. Returns the overall score plus an itemized breakdown of checks (title length, keyword usage, screenshots, ratings, etc.) so you can identify what to improve.",
+    "Calculate an ASO (App Store Optimization) audit score (0-100) for an app. Returns the overall score plus an itemized breakdown of checks (title length, keyword usage, screenshots, ratings, etc.) so you can identify what to improve. Works without an API key (free tier, limited daily use per IP).",
   inputSchema,
   annotations: readAnnotations,
   async handler(args, client) {

@@ -13,6 +13,7 @@ const inputSchema = z.object({
 
 export const untrackAppTool: ToolDefinition<typeof inputSchema> = {
   name: "sonar_untrack_app",
+  title: "Untrack App",
   description:
     "WRITE tool — untrack an app and its associated tracking data in the caller's Sonar workspace. Requires a Full plan (trial counts) and an API key with the write scope.",
   inputSchema,

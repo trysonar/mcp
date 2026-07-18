@@ -57,9 +57,13 @@ Write tools mutate your workspace and require a **Full plan** (an active trial c
 
 Together these close the loop for agents: set up tracking with the write tools, then read back rankings, changes, and gap analyses with the workspace tools.
 
+## Try it free — no API key needed
+
+The server runs without a key in **free mode**: `sonar_app_search`, `sonar_app_lookup`, `sonar_app_aso_score`, `sonar_app_extract_keywords`, and `sonar_keyword_suggestions` share a free allowance of 30 requests/day per IP, and `sonar_keyword_metrics` (keyword difficulty + popularity) gets 5 keywords/day. Just install it with no `env` block and ask your agent about ASO. When you hit the limit, the error tells you how to sign up.
+
 ## Get an API key
 
-You'll need a Sonar API key — get one at [trysonar.app/developers](https://trysonar.app/developers).
+For everything else (tracking, rankings, competitors, higher limits) you'll need a Sonar API key — get one at [trysonar.app/developers](https://trysonar.app/developers).
 
 The cheapest path is **prepaid API credits** — packs from $10 (1,000 credits), with 50 free credits on signup and no subscription. Built specifically for this use case. See [pricing](https://trysonar.app/#pricing).
 
@@ -117,7 +121,7 @@ Most clients use the same `command` + `args` + `env` shape as above. Point the c
 
 | Variable | Required | Default | Description |
 |-|-|-|-|
-| `SONAR_API_KEY` | yes | — | Your Sonar API key (`aso_...`) |
+| `SONAR_API_KEY` | no (free mode without it) | — | Your Sonar API key (`aso_...`) |
 | `SONAR_API_URL` | no | `https://trysonar.app` | Override the API base URL (only used for self-hosting / staging) |
 
 ## Example prompts
@@ -132,13 +136,21 @@ Most clients use the same `command` + `args` + `env` shape as above. Point the c
 
 > "Search 'meditation' on the App Store and estimate monthly revenue for the top 5 results."
 
-## Privacy & data flow
+## Privacy Policy
 
-The MCP server is a thin client around Sonar's REST API. Your API key is sent as a `Bearer` token over HTTPS. Tool inputs and the resulting JSON are passed to your AI client; no data is logged by this package itself.
+Full policy: **<https://trysonar.app/privacy>**
+
+The MCP server is a thin client around Sonar's REST API — it stores nothing locally and no data is logged by this package itself.
+
+- **Data collected:** tool inputs (app IDs, keywords, country codes) are sent to Sonar's API over HTTPS to produce results; authenticated requests include your API key as a `Bearer` token. Sonar logs API requests (endpoint, status, timing) for rate limiting and abuse prevention.
+- **Data usage:** inputs are used solely to serve the request (keyword metrics, app lookups, etc.); resulting JSON is returned to your AI client.
+- **Storage & retention:** the package keeps no state on disk. Server-side request logs are retained for 90 days; workspace data (tracked apps/keywords) persists in your Sonar account until you delete it.
+- **Third-party sharing:** no user data is sold or shared with third parties; queries against public app-store data (Apple, Google) contain no personal information.
+- **Contact:** [hello@trysonar.app](mailto:hello@trysonar.app)
 
 ## Troubleshooting
 
-**"SONAR_API_KEY is not set"** — The MCP client did not pass the env var through. Check the `env` section of your client's config file. Some clients require an absolute path to `npx` — try `which npx` and use that.
+**"SONAR_API_KEY is not set — running in free mode"** — Expected if you haven't configured a key: the free tools keep working with per-IP daily limits. If you DID configure a key, the MCP client did not pass the env var through — check the `env` section of your client's config file. Some clients require an absolute path to `npx` — try `which npx` and use that.
 
 **"Authentication failed"** — Your key is invalid, expired, or your subscription lapsed. Visit [trysonar.app/developers](https://trysonar.app/developers) to check.
 

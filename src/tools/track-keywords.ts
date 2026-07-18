@@ -28,6 +28,7 @@ const inputSchema = z.object({
 
 export const trackKeywordsTool: ToolDefinition<typeof inputSchema> = {
   name: "sonar_track_keywords",
+  title: "Track Keywords",
   description:
     "WRITE tool — starts daily rank tracking for one or more keywords on an app in the caller's Sonar workspace. Idempotent: re-posting the same terms reports them as already_tracked instead of creating duplicates. Returns per-keyword outcomes (created / already_tracked / failed). Requires a Full plan (trial counts) and an API key with the write scope.",
   inputSchema,

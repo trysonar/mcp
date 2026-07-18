@@ -15,6 +15,7 @@ const inputSchema = z.object({
 
 export const appRevenueTool: ToolDefinition<typeof inputSchema> = {
   name: "sonar_app_revenue",
+  title: "Estimate App Revenue",
   description:
     "Estimate monthly revenue for an app, based on install counts, ratings, and category benchmarks. Returns the dollar estimate, a confidence grade (high/medium/low) with the factors behind it, and the methodology used — always communicate the confidence alongside the number.",
   inputSchema,

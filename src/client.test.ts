@@ -61,6 +61,45 @@ describe("client.get", () => {
     expect(init.headers.Accept).toBe("application/json");
   });
 
+  it("omits the Authorization header entirely when apiKey is empty (free tier)", async () => {
+    const fetchMock = vi.fn().mockResolvedValue(
+      new Response(JSON.stringify({ data: { ok: true } }), {
+        status: 200,
+        headers: { "content-type": "application/json" },
+      })
+    );
+    globalThis.fetch = fetchMock as unknown as typeof fetch;
+
+    const client = createClient({
+      apiKey: "",
+      baseUrl: "https://trysonar.app",
+    });
+    await client.get("/api/v1/apps/search", { store: "ios", q: "meditation" });
+
+    const [, init] = fetchMock.mock.calls[0];
+    // "Bearer " (empty) would 401 as an invalid key instead of reaching the
+    // API's anonymous free tier — the header must be absent, not empty.
+    expect(init.headers).not.toHaveProperty("Authorization");
+    expect(init.headers.Accept).toBe("application/json");
+  });
+
+  it("attaches extraHeaders to every request (hosted /mcp IP forwarding)", async () => {
+    const fetchMock = vi.fn().mockResolvedValue(
+      new Response(JSON.stringify({ data: { ok: true } }), { status: 200 })
+    );
+    globalThis.fetch = fetchMock as unknown as typeof fetch;
+
+    const client = createClient({
+      apiKey: "",
+      baseUrl: "https://trysonar.app",
+      extraHeaders: { "x-sonar-anon-ip": "1.2.3.4" },
+    });
+    await client.get("/api/v1/apps/search", { store: "ios", q: "x" });
+
+    const [, init] = fetchMock.mock.calls[0];
+    expect(init.headers["x-sonar-anon-ip"]).toBe("1.2.3.4");
+  });
+
   it("throws SonarApiError with API-provided code/message on 4xx", async () => {
     globalThis.fetch = vi.fn().mockResolvedValue(
       new Response(

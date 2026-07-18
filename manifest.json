@@ -1,0 +1,242 @@
+{
+  "$schema": "https://raw.githubusercontent.com/anthropics/mcpb/main/dist/mcpb-manifest.schema.json",
+  "manifest_version": "0.2",
+  "name": "sonar",
+  "display_name": "Sonar — App Store Optimization",
+  "version": "0.7.0",
+  "description": "ASO tools for AI agents: keyword research, rank tracking, competitor analysis (iOS & Android).",
+  "long_description": "Sonar gives Claude real App Store Optimization data for the iOS App Store and Google Play: keyword difficulty and search popularity, app lookups and search rankings, ASO audit scores, review mining, revenue estimates, and (with a Sonar account) tracked apps, daily rank history, competitor analysis, and Screenshot Studio. Works without an API key on a limited free tier — app search & lookup, keyword suggestions, ASO score, keyword extraction, and a small daily allowance of keyword metrics. Create a free API key at https://trysonar.app/developers for full access.",
+  "author": {
+    "name": "Peter Sutarik",
+    "email": "hello@trysonar.app",
+    "url": "https://trysonar.app"
+  },
+  "homepage": "https://trysonar.app",
+  "documentation": "https://trysonar.app/docs/mcp",
+  "support": "https://github.com/trysonar/mcp/issues",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/trysonar/mcp"
+  },
+  "license": "MIT",
+  "icon": "icon.png",
+  "privacy_policies": [
+    "https://trysonar.app/privacy"
+  ],
+  "server": {
+    "type": "node",
+    "entry_point": "dist-mcpb/index.mjs",
+    "mcp_config": {
+      "command": "node",
+      "args": [
+        "${__dirname}/dist-mcpb/index.mjs"
+      ],
+      "env": {
+        "SONAR_API_KEY": "${user_config.api_key}"
+      }
+    }
+  },
+  "user_config": {
+    "api_key": {
+      "type": "string",
+      "title": "Sonar API key",
+      "description": "Optional. Without a key you get the free tier (app search & lookup, keyword suggestions, ASO score, keyword extraction, limited keyword metrics — daily limits per IP). Create a key at https://trysonar.app/developers for full access.",
+      "sensitive": true,
+      "required": false
+    }
+  },
+  "compatibility": {
+    "platforms": [
+      "darwin",
+      "win32",
+      "linux"
+    ],
+    "runtimes": {
+      "node": ">=20.0.0"
+    }
+  },
+  "keywords": [
+    "aso",
+    "app-store-optimization",
+    "keyword-research",
+    "rank-tracking",
+    "ios",
+    "android",
+    "app-store",
+    "google-play"
+  ],
+  "tools": [
+    {
+      "name": "sonar_app_lookup",
+      "description": "Look Up App"
+    },
+    {
+      "name": "sonar_app_search",
+      "description": "Search Apps"
+    },
+    {
+      "name": "sonar_app_aso_score",
+      "description": "ASO Score"
+    },
+    {
+      "name": "sonar_app_extract_keywords",
+      "description": "Extract App Keywords"
+    },
+    {
+      "name": "sonar_app_reviews",
+      "description": "Fetch App Reviews"
+    },
+    {
+      "name": "sonar_app_revenue",
+      "description": "Estimate App Revenue"
+    },
+    {
+      "name": "sonar_keyword_search",
+      "description": "Keyword Research"
+    },
+    {
+      "name": "sonar_keyword_metrics",
+      "description": "Keyword Metrics"
+    },
+    {
+      "name": "sonar_keyword_suggestions",
+      "description": "Keyword Suggestions"
+    },
+    {
+      "name": "sonar_list_apps",
+      "description": "List Tracked Apps"
+    },
+    {
+      "name": "sonar_get_app",
+      "description": "Get Tracked App"
+    },
+    {
+      "name": "sonar_app_keywords",
+      "description": "List App Keywords"
+    },
+    {
+      "name": "sonar_app_rankings",
+      "description": "App Rank History"
+    },
+    {
+      "name": "sonar_app_changes",
+      "description": "App Change History"
+    },
+    {
+      "name": "sonar_keyword_rankings",
+      "description": "Keyword SERP History"
+    },
+    {
+      "name": "sonar_competitor_keywords",
+      "description": "Competitor Keywords"
+    },
+    {
+      "name": "sonar_list_products",
+      "description": "List Products"
+    },
+    {
+      "name": "sonar_list_alerts",
+      "description": "List Alert Rules"
+    },
+    {
+      "name": "sonar_create_product",
+      "description": "Create Product"
+    },
+    {
+      "name": "sonar_track_app",
+      "description": "Track App"
+    },
+    {
+      "name": "sonar_track_competitor",
+      "description": "Track Competitor"
+    },
+    {
+      "name": "sonar_track_keywords",
+      "description": "Track Keywords"
+    },
+    {
+      "name": "sonar_update_keyword_note",
+      "description": "Update Keyword Note"
+    },
+    {
+      "name": "sonar_star_keyword",
+      "description": "Star Keyword"
+    },
+    {
+      "name": "sonar_scan_competitor",
+      "description": "Scan Competitor Keywords"
+    },
+    {
+      "name": "sonar_delete_tracked_keyword",
+      "description": "Delete Tracked Keyword"
+    },
+    {
+      "name": "sonar_untrack_keywords",
+      "description": "Untrack Keywords"
+    },
+    {
+      "name": "sonar_untrack_app",
+      "description": "Untrack App"
+    },
+    {
+      "name": "sonar_delete_product",
+      "description": "Delete Product"
+    },
+    {
+      "name": "sonar_remove_competitor",
+      "description": "Remove Competitor"
+    },
+    {
+      "name": "sonar_set_alert",
+      "description": "Set Alert Rule"
+    },
+    {
+      "name": "sonar_delete_alert",
+      "description": "Delete Alert Rule"
+    },
+    {
+      "name": "sonar_screenshot_layout_guide",
+      "description": "Screenshot Layout Guide"
+    },
+    {
+      "name": "sonar_screenshot_devices",
+      "description": "List Screenshot Devices"
+    },
+    {
+      "name": "sonar_list_screenshot_sets",
+      "description": "List Screenshot Sets"
+    },
+    {
+      "name": "sonar_create_screenshot_set",
+      "description": "Create Screenshot Set"
+    },
+    {
+      "name": "sonar_get_screenshot_set",
+      "description": "Get Screenshot Set"
+    },
+    {
+      "name": "sonar_update_screenshot_set",
+      "description": "Update Screenshot Set"
+    },
+    {
+      "name": "sonar_delete_screenshot_set",
+      "description": "Delete Screenshot Set"
+    },
+    {
+      "name": "sonar_add_screenshot",
+      "description": "Add Screenshot"
+    },
+    {
+      "name": "sonar_update_screenshot",
+      "description": "Update Screenshot"
+    },
+    {
+      "name": "sonar_delete_screenshot",
+      "description": "Delete Screenshot"
+    },
+    {
+      "name": "sonar_set_screenshot_translations",
+      "description": "Set Screenshot Translations"
+    }
+  ]
+}

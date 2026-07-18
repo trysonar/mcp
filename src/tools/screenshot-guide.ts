@@ -110,6 +110,7 @@ const guideInputSchema = z.object({});
 
 export const screenshotLayoutGuideTool: ToolDefinition<typeof guideInputSchema> = {
   name: "sonar_screenshot_layout_guide",
+  title: "Screenshot Layout Guide",
   description:
     "The layout-format reference for Sonar screenshot sets. Call this ONCE before creating or editing screenshot layouts — it documents the layout JSON schema, coordinate system, image handling (remote URLs), flowing background shapes, fonts, translation overrides, and the recommended workflow.",
   inputSchema: guideInputSchema,
@@ -123,6 +124,7 @@ const devicesInputSchema = z.object({});
 
 export const screenshotDevicesTool: ToolDefinition<typeof devicesInputSchema> = {
   name: "sonar_screenshot_devices",
+  title: "List Screenshot Devices",
   description:
     "List the device sizes supported for app-store screenshot sets, with their canvas dimensions (the pixel coordinate space all layouts use) and which store each belongs to. Pick a device here before sonar_create_screenshot_set.",
   inputSchema: devicesInputSchema,

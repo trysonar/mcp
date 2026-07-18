@@ -13,6 +13,7 @@ const inputSchema = z.object({
 
 export const keywordSearchTool: ToolDefinition<typeof inputSchema> = {
   name: "sonar_keyword_search",
+  title: "Keyword Research",
   description:
     "Research a keyword and related terms. Returns difficulty (0-100), popularity score, and results count for the seed keyword plus related autocomplete suggestions. Use this to find keywords worth targeting.",
   inputSchema,

@@ -38,6 +38,7 @@ const inputSchema = z.object({
 
 export const setAlertTool: ToolDefinition<typeof inputSchema> = {
   name: "sonar_set_alert",
+  title: "Set Alert Rule",
   description:
     "WRITE tool — create or update an alert subscription in the caller's Sonar workspace. Upserts on (type + scope): re-submitting the same type/scope updates the existing rule. Omit `threshold` for the per-type default; omit `scope_app_id` for an org-wide rule. Requires a Full plan (trial counts) and an API key with the write scope.",
   inputSchema,

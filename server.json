@@ -2,7 +2,7 @@
   "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
   "name": "app.trysonar/sonar",
   "description": "ASO tools for AI agents: keyword research, rank tracking, competitor analysis (iOS & Android).",
-  "version": "0.6.0",
+  "version": "0.7.0",
   "repository": {
     "url": "https://github.com/trysonar/mcp",
     "source": "github"
@@ -25,7 +25,7 @@
     {
       "registryType": "npm",
       "identifier": "@sonarapp/mcp",
-      "version": "0.6.0",
+      "version": "0.7.0",
       "transport": { "type": "stdio" },
       "environmentVariables": [
         {

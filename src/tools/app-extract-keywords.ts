@@ -22,8 +22,9 @@ const inputSchema = z.object({
 
 export const appExtractKeywordsTool: ToolDefinition<typeof inputSchema> = {
   name: "sonar_app_extract_keywords",
+  title: "Extract App Keywords",
   description:
-    "Extract the most likely target keywords from an app's title and description, ranked by relevance. Useful for understanding what an app (yours or a competitor) is optimizing for.",
+    "Extract the most likely target keywords from an app's title and description, ranked by relevance. Useful for understanding what an app (yours or a competitor) is optimizing for. Works without an API key (free tier, limited daily use per IP).",
   inputSchema,
   annotations: readAnnotations,
   async handler(args, client) {

@@ -33,8 +33,9 @@ type BulkResultItem = KeywordSearchResult & {
 
 export const keywordMetricsTool: ToolDefinition<typeof inputSchema> = {
   name: "sonar_keyword_metrics",
+  title: "Keyword Metrics",
   description:
-    "Difficulty + popularity for a specific keyword (or up to 25 in bulk). Use this when you already know which keywords you care about — costs 1 credit per keyword. Use sonar_keyword_search instead when you want related keyword ideas alongside metrics.",
+    "Difficulty + popularity for a specific keyword (or up to 25 in bulk). Use this when you already know which keywords you care about — costs 1 credit per keyword. Works without an API key for up to 5 keywords/day (free tier, per IP); an API key removes that cap. Use sonar_keyword_search instead when you want related keyword ideas alongside metrics.",
   inputSchema,
   annotations: readAnnotations,
   async handler(args, client) {

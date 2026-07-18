@@ -34,6 +34,7 @@ const inputSchema = z.object({
 
 export const appRankingsTool: ToolDefinition<typeof inputSchema> = {
   name: "sonar_app_rankings",
+  title: "App Rank History",
   description:
     "Rank history for an app's tracked keywords — daily ranks over the requested window, one history array per keyword. Use this to check how rankings moved after a metadata change or to find keywords trending up or down. Cursor-paginated over keywords (default 50 per page). Requires a Full plan (trial counts).",
   inputSchema,

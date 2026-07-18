@@ -20,8 +20,9 @@ const inputSchema = z.object({
 
 export const appSearchTool: ToolDefinition<typeof inputSchema> = {
   name: "sonar_app_search",
+  title: "Search Apps",
   description:
-    "Search apps in the App Store or Google Play by keyword. Returns ranked list of apps with metadata (results are returned in store ranking order).",
+    "Search apps in the App Store or Google Play by keyword. Returns ranked list of apps with metadata (results are returned in store ranking order). Works without an API key (free tier, limited daily use per IP).",
   inputSchema,
   annotations: readAnnotations,
   async handler(args, client) {
