@@ -305,3 +305,79 @@ describe("sonar_set_screenshot_translations", () => {
     expect(result.isError).toBe(true);
   });
 });
+
+describe("sonar_export_screenshots", () => {
+  const META = {
+    data: {
+      id: "set-1",
+      name: "My set",
+      device_size: "iphone-6.9",
+      width: 1320,
+      height: 2868,
+      source_locale: "en-US",
+      locales: ["de-DE", "ja"],
+      screens: [{ id: "scr-1", position: 0 }],
+    },
+  };
+
+  async function tmpDir() {
+    const { mkdtemp } = await import("node:fs/promises");
+    const os = await import("node:os");
+    const path = await import("node:path");
+    return mkdtemp(path.join(os.tmpdir(), "sonar-export-"));
+  }
+
+  it("exports the source locale by default (no locale param)", async () => {
+    const get = vi.fn().mockResolvedValue(META);
+    const getBinary = vi.fn().mockResolvedValue(new Uint8Array([80, 75, 3, 4]));
+    const dir = await tmpDir();
+    const result = await runTool(
+      toolsByName.sonar_export_screenshots,
+      { set_id: "set-1", output_dir: dir },
+      mockClient({ get, getBinary })
+    );
+    expect(result.isError).toBeUndefined();
+    expect(get).toHaveBeenCalledWith(
+      "/api/v1/screenshots/sets/set-1/export",
+      { meta: 1 }
+    );
+    // Source locale renders without a locale param.
+    expect(getBinary).toHaveBeenCalledWith(
+      "/api/v1/screenshots/sets/set-1/export",
+      {}
+    );
+    const { readFile } = await import("node:fs/promises");
+    const path = await import("node:path");
+    const written = await readFile(path.join(dir, "en-US.zip"));
+    expect([...written]).toEqual([80, 75, 3, 4]);
+  });
+
+  it("all_locales exports source + every enabled locale", async () => {
+    const get = vi.fn().mockResolvedValue(META);
+    const getBinary = vi.fn().mockResolvedValue(new Uint8Array([1]));
+    const dir = await tmpDir();
+    const result = await runTool(
+      toolsByName.sonar_export_screenshots,
+      { set_id: "set-1", all_locales: true, output_dir: dir },
+      mockClient({ get, getBinary })
+    );
+    expect(result.isError).toBeUndefined();
+    expect(getBinary).toHaveBeenCalledTimes(3);
+    expect(getBinary).toHaveBeenCalledWith(
+      "/api/v1/screenshots/sets/set-1/export",
+      { locale: "de-DE" }
+    );
+  });
+
+  it("rejects locales not enabled on the set", async () => {
+    const get = vi.fn().mockResolvedValue(META);
+    const dir = await tmpDir();
+    const result = await runTool(
+      toolsByName.sonar_export_screenshots,
+      { set_id: "set-1", locales: ["fr-FR"], output_dir: dir },
+      mockClient({ get, getBinary: vi.fn() })
+    );
+    expect(result.isError).toBe(true);
+    expect(result.content[0].text).toContain("fr-FR");
+  });
+});

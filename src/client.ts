@@ -30,6 +30,11 @@ export interface ApiClient {
     path: string,
     body?: unknown
   ): Promise<T>;
+  /** Binary GET (screenshot exports: ZIP/PNG). Errors still parse as JSON. */
+  getBinary(
+    path: string,
+    params?: Record<string, string | number | undefined>
+  ): Promise<Uint8Array>;
 }
 
 export class SonarApiError extends Error {
@@ -172,6 +177,53 @@ export function createClient(config: ClientConfig): ApiClient {
             }
           : {}),
       });
+    },
+
+    async getBinary(
+      path: string,
+      params?: Record<string, string | number | undefined>
+    ): Promise<Uint8Array> {
+      const url = new URL(path, baseUrl);
+      if (params) {
+        for (const [key, value] of Object.entries(params)) {
+          if (value !== undefined && value !== null) {
+            url.searchParams.set(key, String(value));
+          }
+        }
+      }
+      let response: Response;
+      try {
+        response = await fetch(url.toString(), {
+          headers: {
+            ...(apiKey ? { Authorization: `Bearer ${apiKey}` } : {}),
+            ...(userAgent ? { "User-Agent": userAgent } : {}),
+            ...(extraHeaders ?? {}),
+          },
+        });
+      } catch (err) {
+        if (err instanceof TypeError) {
+          throw new SonarApiError(
+            0,
+            "network_error",
+            `Could not connect to ${url.origin}. Check your network and SONAR_API_URL.`
+          );
+        }
+        throw err;
+      }
+      if (response.ok) {
+        return new Uint8Array(await response.arrayBuffer());
+      }
+      let body: ApiError | null = null;
+      try {
+        body = (await response.json()) as ApiError;
+      } catch {
+        // body is not JSON
+      }
+      throw new SonarApiError(
+        response.status,
+        body?.error?.code ?? defaultCodeForStatus(response.status),
+        body?.error?.message ?? defaultMessageForStatus(response.status)
+      );
     },
   };
 }

@@ -59,7 +59,7 @@ function mockDeleteClient(impl: ApiClient["delete"]): ApiClient {
 }
 
 describe("tools registry", () => {
-  it("exposes the 18 read tools, 14 write tools, and 11 screenshot tools", () => {
+  it("exposes the 20 read tools, 15 write tools, and 12 screenshot tools", () => {
     expect(tools.map((t) => t.name).sort()).toEqual(
       [
         // Stateless reads
@@ -72,6 +72,7 @@ describe("tools registry", () => {
         "sonar_keyword_metrics",
         "sonar_keyword_search",
         "sonar_keyword_suggestions",
+        "sonar_top_charts",
         // Org-scoped reads
         "sonar_list_apps",
         "sonar_get_app",
@@ -80,6 +81,7 @@ describe("tools registry", () => {
         "sonar_app_changes",
         "sonar_keyword_rankings",
         "sonar_competitor_keywords",
+        "sonar_competitor_landscape",
         "sonar_list_products",
         "sonar_list_alerts",
         // Writes
@@ -90,7 +92,9 @@ describe("tools registry", () => {
         "sonar_update_keyword_note",
         "sonar_star_keyword",
         "sonar_scan_competitor",
+        "sonar_analyze_competitors",
         "sonar_delete_tracked_keyword",
+        "sonar_export_screenshots",
         "sonar_untrack_keywords",
         "sonar_untrack_app",
         "sonar_delete_product",
@@ -122,6 +126,7 @@ describe("tools registry", () => {
       "sonar_update_keyword_note",
       "sonar_star_keyword",
       "sonar_scan_competitor",
+      "sonar_analyze_competitors",
       "sonar_delete_tracked_keyword",
       "sonar_untrack_keywords",
       "sonar_untrack_app",
@@ -353,6 +358,31 @@ describe("runTool — happy path per tool", () => {
     });
   });
 
+  it("sonar_top_charts passes chart params through with defaults applied", async () => {
+    const get = vi.fn().mockResolvedValue({ data: { entries: [] } });
+    await runTool(toolsByName.sonar_top_charts, { store: "ios" }, mockClient(get));
+
+    expect(get).toHaveBeenCalledWith("/api/v1/charts/top", {
+      store: "ios",
+      country: "us",
+      chart: "free",
+      category: "overall",
+      limit: 50,
+    });
+  });
+
+  it("sonar_top_charts rejects an out-of-range limit", async () => {
+    const get = vi.fn();
+    const result = await runTool(
+      toolsByName.sonar_top_charts,
+      { store: "ios", limit: 500 },
+      mockClient(get)
+    );
+
+    expect(result.isError).toBe(true);
+    expect(get).not.toHaveBeenCalled();
+  });
+
   it("sonar_list_products hits /api/v1/products with no params", async () => {
     const get = vi.fn().mockResolvedValue({ data: [{ id: "p1" }] });
     const result = await runTool(
@@ -484,6 +514,34 @@ describe("org-scoped read tools — happy path", () => {
       cursor: undefined,
       limit: undefined,
     });
+  });
+
+  it("sonar_competitor_landscape GETs the landscape for an own app", async () => {
+    const get = vi.fn().mockResolvedValue({
+      data: { app_id: "x", stats: { gaps: 3 }, insight: null },
+    });
+    const result = await runTool(
+      toolsByName.sonar_competitor_landscape,
+      { app_id: "6c9b9f4f-2d3e-5f60-9bac-1d2e3f4a5b6c" },
+      mockClient(get)
+    );
+
+    expect(get).toHaveBeenCalledWith(
+      "/api/v1/apps/6c9b9f4f-2d3e-5f60-9bac-1d2e3f4a5b6c/competitor-landscape"
+    );
+    expect(JSON.parse(result.content[0].text).stats.gaps).toBe(3);
+  });
+
+  it("sonar_competitor_landscape rejects non-UUID ids before calling the API", async () => {
+    const result = await runTool(
+      toolsByName.sonar_competitor_landscape,
+      { app_id: "com.example.app" },
+      mockClient(async () => {
+        throw new Error("should not be called");
+      })
+    );
+    expect(result.isError).toBe(true);
+    expect(result.content[0].text).toMatch(/Invalid arguments/);
   });
 });
 
@@ -676,6 +734,23 @@ describe("write tools — happy path", () => {
       { own_app_id: "6c9b9f4f-2d3e-5f60-9bac-1d2e3f4a5b6c" }
     );
     expect(JSON.parse(result.content[0].text).discovered).toBe(12);
+  });
+
+  it("sonar_analyze_competitors POSTs to the competitor-landscape endpoint", async () => {
+    const post = vi.fn().mockResolvedValue({
+      data: { app_id: "x", insight: { posture: "leader" } },
+    });
+    const result = await runTool(
+      toolsByName.sonar_analyze_competitors,
+      { app_id: "6c9b9f4f-2d3e-5f60-9bac-1d2e3f4a5b6c" },
+      mockPostClient(post)
+    );
+
+    expect(post).toHaveBeenCalledWith(
+      "/api/v1/apps/6c9b9f4f-2d3e-5f60-9bac-1d2e3f4a5b6c/competitor-landscape",
+      {}
+    );
+    expect(JSON.parse(result.content[0].text).insight.posture).toBe("leader");
   });
 
   it("sonar_scan_competitor rejects non-UUID ids before calling the API", async () => {

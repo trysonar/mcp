@@ -65,6 +65,22 @@ export interface Review {
   date: string;
 }
 
+/**
+ * Explainable ingredients behind the difficulty score — the raw SERP signals
+ * (title targeting + top-3 app strength). `beatable: true` means a top-3 slot
+ * looks winnable: an app holds it with ≥10x less strength than the SERP
+ * median, or the term is under-targeted (≤3 title matches) with a weak top-3.
+ */
+export interface DifficultyBreakdown {
+  titleMatches: number;
+  appsAnalyzed: number;
+  /** Ratings count (iOS) / installs (Android) of the top 3 apps, rank order. */
+  top3Strength: number[];
+  medianStrength: number;
+  weakSpotRank: number | null;
+  beatable: boolean;
+}
+
 export interface KeywordSearchResult {
   keyword: string;
   store: Store;
@@ -77,6 +93,14 @@ export interface KeywordSearchResult {
    * e.g. popularity 5 with popularity_proxy 58. Null otherwise.
    */
   popularity_proxy?: number | null;
+  /**
+   * Estimated downloads/day for the app ranking #1 on this keyword (rough
+   * order of magnitude from the Apple-calibrated popularity curve). iOS only;
+   * null on Android or when popularity is unknown.
+   */
+  est_downloads_at_1?: number | null;
+  /** Null for rows cached before the breakdown existed or thin SERPs. */
+  difficulty_breakdown?: DifficultyBreakdown | null;
   results_count: number | null;
 }
 
@@ -156,8 +180,71 @@ export interface UpdateKeywordNoteResult {
 export interface ScanCompetitorResult {
   competitor_app_id: string;
   own_app_id: string;
-  discovered: number;
-  ranked: number;
+  /** Candidate terms generated from the competitor's listing. */
+  generated: number;
+  /** Candidates queued for background SERP verification. */
+  queued: number;
+  /** Candidates verified inline before the response returned. */
+  verified_now: number;
+}
+
+export interface LandscapeKeywordResult {
+  keyword_id: string;
+  keyword: string;
+  country: string;
+  own_rank: number | null;
+  best_competitor: { app_id?: string; name: string; rank: number } | null;
+  popularity: number | null;
+  popularity_proxy?: number | null;
+  difficulty: number | null;
+  opportunity: number | null;
+  tracked?: boolean;
+}
+
+export interface CompetitorInsightResult {
+  generated_at: string;
+  keywords_compared: number;
+  competitors_analyzed: number;
+  gaps_found: number;
+  model: string | null;
+  posture: "leader" | "challenger" | "niche" | "behind";
+  overview: string;
+  opportunities: {
+    title: string;
+    detail: string;
+    priority: "high" | "medium" | "low";
+    keywords: LandscapeKeywordResult[];
+  }[];
+  threats: { competitor_name: string; headline: string; detail: string }[];
+  strengths: string[];
+  changes_since_last: string | null;
+}
+
+export interface CompetitorLandscapeResult {
+  app_id: string;
+  stats: {
+    competitors: number;
+    keywords_compared: number;
+    gaps: number;
+    winnable: number;
+    threats: number;
+    leads: number;
+  };
+  gaps: LandscapeKeywordResult[];
+  threats: {
+    competitor_app_id: string;
+    competitor_name: string;
+    keyword_id: string;
+    keyword: string;
+    country: string;
+    from_rank: number | null;
+    to_rank: number;
+    own_rank: number | null;
+  }[];
+  leads: LandscapeKeywordResult[];
+  competitors: { app_id: string; name: string }[];
+  insight: CompetitorInsightResult | null;
+  insight_cooldown: { in_cooldown: boolean; next_available_at: string | null };
 }
 
 // ── Org-scoped read endpoint results ────────────────────────────────────────

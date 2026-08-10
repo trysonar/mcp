@@ -7,6 +7,7 @@ import { appRevenueTool } from "./app-revenue.js";
 import { keywordSearchTool } from "./keyword-search.js";
 import { keywordMetricsTool } from "./keyword-metrics.js";
 import { keywordSuggestionsTool } from "./keyword-suggestions.js";
+import { topChartsTool } from "./top-charts.js";
 import { listAppsTool } from "./list-apps.js";
 import { getAppTool } from "./get-app.js";
 import { appKeywordsTool } from "./app-keywords.js";
@@ -14,6 +15,10 @@ import { appRankingsTool } from "./app-rankings.js";
 import { appChangesTool } from "./app-changes.js";
 import { keywordRankingsTool } from "./keyword-rankings.js";
 import { competitorKeywordsTool } from "./competitor-keywords.js";
+import {
+  analyzeCompetitorsTool,
+  competitorLandscapeTool,
+} from "./competitor-landscape.js";
 import { listProductsTool } from "./list-products.js";
 import { listAlertsTool } from "./list-alerts.js";
 import { createProductTool } from "./create-product.js";
@@ -47,6 +52,7 @@ import {
   setScreenshotTranslationsTool,
   updateScreenshotTool,
 } from "./screenshot-screens.js";
+import { exportScreenshotsTool } from "./screenshot-export.js";
 import type { Tool } from "./shared.js";
 
 export const tools: Tool[] = [
@@ -60,6 +66,7 @@ export const tools: Tool[] = [
   keywordSearchTool,
   keywordMetricsTool,
   keywordSuggestionsTool,
+  topChartsTool,
   // Read tools — org-scoped (the caller's tracked apps/keywords/competitors).
   // Server enforces Full plan; read scope is enough.
   listAppsTool,
@@ -69,6 +76,7 @@ export const tools: Tool[] = [
   appChangesTool,
   keywordRankingsTool,
   competitorKeywordsTool,
+  competitorLandscapeTool,
   listProductsTool,
   listAlertsTool,
   // Write tools — mutate the caller's workspace. The server enforces
@@ -80,6 +88,7 @@ export const tools: Tool[] = [
   updateKeywordNoteTool,
   starKeywordTool,
   scanCompetitorTool,
+  analyzeCompetitorsTool,
   deleteTrackedKeywordTool,
   untrackKeywordsTool,
   untrackAppTool,
@@ -99,6 +108,7 @@ export const tools: Tool[] = [
   updateScreenshotTool,
   deleteScreenshotTool,
   setScreenshotTranslationsTool,
+  exportScreenshotsTool,
 ];
 
 export const toolsByName: Record<string, Tool> = Object.fromEntries(
