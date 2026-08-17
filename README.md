@@ -2,7 +2,7 @@
 
 [![npm](https://img.shields.io/npm/v/@sonarapp/mcp.svg)](https://www.npmjs.com/package/@sonarapp/mcp)
 [![license](https://img.shields.io/npm/l/@sonarapp/mcp.svg)](./LICENSE)
-[![smithery badge](https://smithery.ai/badge/sutarik-peter/sonar)](https://smithery.ai/servers/sutarik-peter/sonar)
+[![smithery badge](https://smithery.ai/badge/trysonar/sonar)](https://smithery.ai/servers/trysonar/sonar)
 
 The official **Sonar** MCP server — App Store Optimization tools for AI agents.
 
@@ -29,7 +29,7 @@ Lets Claude Desktop, Claude Code, Cursor, Cline, and any [Model Context Protocol
 
 Stateless tools work on **any plan with credits**, with both iOS and Android.
 
-### Read tools — your workspace (Full plan)
+### Read tools — your workspace (Indie plan)
 
 | Tool | What it does |
 |-|-|
@@ -42,9 +42,9 @@ Stateless tools work on **any plan with credits**, with both iOS and Android.
 | `sonar_competitor_keywords` | Keywords a competitor ranks for + gap analysis vs your app |
 | `sonar_competitor_landscape` | Full competitive picture for one of your own apps — gap/winnable/threat/lead stats + latest AI insight |
 
-Workspace reads require a **Full plan** (an active trial counts); the default `read`-scope key is enough.
+Workspace reads require an **Indie plan** (an active trial counts); the default `read`-scope key is enough.
 
-### Write tools (Full plan + write scope)
+### Write tools (Indie plan + write scope)
 
 | Tool | What it does |
 |-|-|
@@ -56,7 +56,7 @@ Workspace reads require a **Full plan** (an active trial counts); the default `r
 | `sonar_scan_competitor` | Run a keyword discovery scan on a competitor (read results with `sonar_competitor_keywords`) |
 | `sonar_analyze_competitors` | Generate a fresh AI competitive insight for one of your own apps (7-day cooldown; read it with `sonar_competitor_landscape`) |
 
-Write tools mutate your workspace and require a **Full plan** (an active trial counts) plus an API key created with the **`write` scope**. The server enforces both — without them, calls return a 403 explaining what to fix.
+Write tools mutate your workspace and require an **Indie plan** (an active trial counts) plus an API key created with the **`write` scope**. The server enforces both — without them, calls return a 403 explaining what to fix.
 
 Together these close the loop for agents: set up tracking with the write tools, then read back rankings, changes, and gap analyses with the workspace tools.
 
@@ -157,7 +157,7 @@ The MCP server is a thin client around Sonar's REST API — it stores nothing lo
 
 **"Authentication failed"** — Your key is invalid, expired, or your subscription lapsed. Visit [trysonar.app/developers](https://trysonar.app/developers) to check.
 
-**"Access denied. Endpoint may require Full plan"** — The 10 stateless read tools work on any plan with credits. The workspace read tools and write tools require a Full plan (an active trial counts); write tools additionally need an API key created with the `write` scope. If you're on a setup or trial-expired plan, reactivate first.
+**"Access denied. Endpoint may require Indie plan"** — The 10 stateless read tools work on any plan with credits. The workspace read tools and write tools require an Indie plan (an active trial counts); write tools additionally need an API key created with the `write` scope. If you're on a setup or trial-expired plan, reactivate first.
 
 ## Companion: CLI
 
