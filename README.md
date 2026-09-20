@@ -6,6 +6,9 @@
 
 The official **Sonar** MCP server — App Store Optimization tools for AI agents.
 
+For the hosted **Grok Build and Cursor marketplace plugin**, see
+[plugin setup, authentication, and permissions](./PLUGINS.md).
+
 Lets Claude Desktop, Claude Code, Cursor, Cline, and any [Model Context Protocol](https://modelcontextprotocol.io)-compatible client look up apps, research keywords, audit ASO, mine reviews, and estimate revenue across the iOS App Store and Google Play. Powered by [Sonar](https://trysonar.app).
 
 ---

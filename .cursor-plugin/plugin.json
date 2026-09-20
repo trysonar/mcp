@@ -1,0 +1,15 @@
+{
+  "name": "sonar-aso",
+  "version": "1.0.0",
+  "description": "App Store Optimization with Sonar: research keywords, audit listings, analyze competitors and reviews, and manage rank tracking for iOS and Android.",
+  "author": {
+    "name": "Sonar",
+    "email": "hello@trysonar.app"
+  },
+  "homepage": "https://trysonar.app",
+  "repository": "https://github.com/trysonar/mcp",
+  "license": "MIT",
+  "logo": "icon.png",
+  "keywords": ["sonar aso", "trysonar", "sonar app store optimization"],
+  "mcpServers": "./.mcp.json"
+}
