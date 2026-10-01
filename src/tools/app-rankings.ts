@@ -36,7 +36,7 @@ export const appRankingsTool: ToolDefinition<typeof inputSchema> = {
   name: "sonar_app_rankings",
   title: "App Rank History",
   description:
-    "Rank history for an app's tracked keywords — daily ranks over the requested window, one history array per keyword. Use this to check how rankings moved after a metadata change or to find keywords trending up or down. Cursor-paginated over keywords (default 50 per page). Requires a Full plan (trial counts).",
+    "Rank history for an app's tracked keywords — daily ranks over the requested window, one history array per keyword. Prefer observations for daily status: ranked has a numeric rank; not_found means a completed search did not return the app (results_count is the returned search size); not_observed means no confirmed check, including legacy gaps. Never interpret an absent rank as a collection failure or assign a numeric rank to it. The legacy history array contains positive ranks only. Use this to check how rankings moved after a metadata change or to find keywords trending up or down. Cursor-paginated over keywords (default 50 per page). Requires an Indie plan (trial counts).",
   inputSchema,
   annotations: readAnnotations,
   async handler(args, client) {

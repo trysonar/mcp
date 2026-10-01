@@ -3,7 +3,7 @@ import type { ApiResponse, CreateProductResult } from "../types.js";
 import {
   storeSchema,
   postWrite,
-  writeAnnotations,
+  publicWriteAnnotations,
   type ToolDefinition,
 } from "./shared.js";
 
@@ -47,9 +47,9 @@ export const createProductTool: ToolDefinition<typeof inputSchema> = {
   name: "sonar_create_product",
   title: "Create Product",
   description:
-    "WRITE tool — creates a product in the caller's Sonar workspace and starts tracking the given app(s). A product is the cross-store unit (one iOS + one Android app, or just one of either). Returns the product id and the Sonar app ids needed by sonar_track_keywords and sonar_track_competitor. Requires a Full plan (trial counts) and an API key with the write scope.",
+    "WRITE tool — creates a product in the caller's Sonar workspace and starts tracking the given app(s). A product is the cross-store unit (one iOS + one Android app, or just one of either). Returns the product id and the Sonar app ids needed by sonar_track_keywords and sonar_track_competitor. Requires an Indie plan (trial counts) and an authorized Sonar account or an API key with the write scope.",
   inputSchema,
-  annotations: writeAnnotations,
+  annotations: publicWriteAnnotations,
   async handler(args, client) {
     const res = await postWrite<ApiResponse<CreateProductResult>>(
       client,

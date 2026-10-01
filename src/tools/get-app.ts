@@ -15,7 +15,7 @@ export const getAppTool: ToolDefinition<typeof inputSchema> = {
   name: "sonar_get_app",
   title: "Get Tracked App",
   description:
-    "Get full details for one tracked app in the caller's Sonar workspace: store metadata plus up to 90 daily snapshots of rating, review count, version, and installs. Requires a Full plan (trial counts).",
+    "Get full details for one tracked app in the caller's Sonar workspace: store metadata plus up to 90 daily snapshots of rating, review count, version, and installs. Requires an Indie plan (trial counts).",
   inputSchema,
   annotations: readAnnotations,
   async handler(args, client) {

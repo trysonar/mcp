@@ -59,7 +59,7 @@ function mockDeleteClient(impl: ApiClient["delete"]): ApiClient {
 }
 
 describe("tools registry", () => {
-  it("exposes the 20 read tools, 15 write tools, and 12 screenshot tools", () => {
+  it("exposes the 27 read tools, 16 write tools, and 12 screenshot tools", () => {
     expect(tools.map((t) => t.name).sort()).toEqual(
       [
         // Stateless reads
@@ -84,6 +84,13 @@ describe("tools registry", () => {
         "sonar_competitor_landscape",
         "sonar_list_products",
         "sonar_list_alerts",
+        "sonar_alert_events",
+        "sonar_app_overview",
+        "sonar_discovered_keywords",
+        "sonar_review_insights",
+        "sonar_portfolio",
+        "sonar_app_sales",
+        "sonar_app_engagement",
         // Writes
         "sonar_create_product",
         "sonar_track_app",
@@ -93,6 +100,7 @@ describe("tools registry", () => {
         "sonar_star_keyword",
         "sonar_scan_competitor",
         "sonar_analyze_competitors",
+        "sonar_generate_review_insights",
         "sonar_delete_tracked_keyword",
         "sonar_export_screenshots",
         "sonar_untrack_keywords",
@@ -127,6 +135,7 @@ describe("tools registry", () => {
       "sonar_star_keyword",
       "sonar_scan_competitor",
       "sonar_analyze_competitors",
+      "sonar_generate_review_insights",
       "sonar_delete_tracked_keyword",
       "sonar_untrack_keywords",
       "sonar_untrack_app",
@@ -167,6 +176,13 @@ describe("tools registry", () => {
       "sonar_competitor_keywords",
       "sonar_list_products",
       "sonar_list_alerts",
+      "sonar_alert_events",
+      "sonar_app_overview",
+      "sonar_discovered_keywords",
+      "sonar_review_insights",
+      "sonar_portfolio",
+      "sonar_app_sales",
+      "sonar_app_engagement",
     ];
     for (const name of orgReadTools) {
       expect(toolsByName[name].annotations?.readOnlyHint).toBe(true);
@@ -292,9 +308,10 @@ describe("runTool — happy path per tool", () => {
     await runTool(
       toolsByName.sonar_app_reviews,
       {
-        store: "ios",
-        store_id: "324684580",
-        country: "us",
+        store: "android",
+        store_id: "com.test",
+        country: "ma",
+        lang: "fr",
         sort: "helpful",
         min_rating: 4,
         limit: 50,
@@ -303,9 +320,10 @@ describe("runTool — happy path per tool", () => {
     );
 
     expect(get).toHaveBeenCalledWith("/api/v1/apps/reviews", {
-      store: "ios",
-      id: "324684580",
-      country: "us",
+      store: "android",
+      id: "com.test",
+      country: "ma",
+      lang: "fr",
       sort: "helpful",
       min_rating: 4,
       max_rating: undefined,
@@ -798,7 +816,7 @@ describe("write tools — 401/403 mapped to an actionable message", () => {
     expect(result.isError).toBe(true);
     expect(result.content[0].text).toMatch(/write.*scope/i);
     expect(result.content[0].text).toMatch(/settings\/developers/);
-    expect(result.content[0].text).toMatch(/Full plan/);
+    expect(result.content[0].text).toMatch(/Indie plan/);
     expect(result.content[0].text).toMatch(/trial counts/);
   });
 
@@ -1056,7 +1074,7 @@ describe("delete write tools — 401/403 mapped to an actionable message", () =>
     expect(result.isError).toBe(true);
     expect(result.content[0].text).toMatch(/write.*scope/i);
     expect(result.content[0].text).toMatch(/settings\/developers/);
-    expect(result.content[0].text).toMatch(/Full plan/);
+    expect(result.content[0].text).toMatch(/Indie plan/);
   });
 });
 
@@ -1117,5 +1135,258 @@ describe("country default", () => {
       "/api/v1/apps/lookup",
       expect.objectContaining({ country: "gb" })
     );
+  });
+});
+
+describe("phase-1 coverage tools (discovered keywords, alert events, review insights)", () => {
+  it("sonar_discovered_keywords GETs the endpoint with filters", async () => {
+    const get = vi.fn().mockResolvedValue({ data: { app_id: "app-1", total: 0, keywords: [] } });
+    await runTool(
+      toolsByName.sonar_discovered_keywords,
+      { app_id: "app-1", country: "us", source: "competitor", status: "new", bucket: "gap", min_relevance: 60, min_opportunity: 40, limit: 50 },
+      mockClient(get)
+    );
+    expect(get).toHaveBeenCalledWith("/api/v1/apps/app-1/discovered-keywords", {
+      country: "us",
+      source: "competitor",
+      status: "new",
+      bucket: "gap",
+      min_relevance: 60,
+      min_opportunity: 40,
+      limit: 50,
+    });
+  });
+
+  it("sonar_discovered_keywords rejects an invalid bucket", async () => {
+    const result = await runTool(
+      toolsByName.sonar_discovered_keywords,
+      { app_id: "app-1", bucket: "nope" },
+      mockClient(async () => {
+        throw new Error("should not be called");
+      })
+    );
+    expect(result.isError).toBe(true);
+  });
+
+  it("sonar_alert_events GETs /api/v1/alerts/events with filters", async () => {
+    const get = vi.fn().mockResolvedValue({ data: [] });
+    await runTool(
+      toolsByName.sonar_alert_events,
+      { type: "rank_drop", since: "2026-08-01T00:00:00Z", limit: 20 },
+      mockClient(get)
+    );
+    expect(get).toHaveBeenCalledWith("/api/v1/alerts/events", {
+      type: "rank_drop",
+      app_id: undefined,
+      since: "2026-08-01T00:00:00Z",
+      limit: 20,
+    });
+  });
+
+  it("sonar_review_insights GETs the endpoint with the country", async () => {
+    const get = vi.fn().mockResolvedValue({ data: { insight: null } });
+    await runTool(
+      toolsByName.sonar_review_insights,
+      { app_id: "app-1", country: "de" },
+      mockClient(get)
+    );
+    expect(get).toHaveBeenCalledWith("/api/v1/apps/app-1/review-insights", {
+      country: "de",
+    });
+  });
+
+  it("sonar_generate_review_insights POSTs with the country in the query", async () => {
+    const post = vi.fn().mockResolvedValue({ data: { insight: {} } });
+    await runTool(
+      toolsByName.sonar_generate_review_insights,
+      { app_id: "app-1" },
+      mockPostClient(post)
+    );
+    expect(post).toHaveBeenCalledWith(
+      "/api/v1/apps/app-1/review-insights?country=us",
+      {}
+    );
+  });
+});
+
+describe("phase-2 computed-insight tools (overview, portfolio)", () => {
+  it("sonar_app_overview GETs the overview endpoint with days", async () => {
+    const get = vi.fn().mockResolvedValue({ data: { app_id: "app-1" } });
+    await runTool(
+      toolsByName.sonar_app_overview,
+      { app_id: "app-1", days: 14 },
+      mockClient(get)
+    );
+    expect(get).toHaveBeenCalledWith("/api/v1/apps/app-1/overview", {
+      days: 14,
+    });
+  });
+
+  it("sonar_app_overview rejects an out-of-range days", async () => {
+    const result = await runTool(
+      toolsByName.sonar_app_overview,
+      { app_id: "app-1", days: 365 },
+      mockClient(async () => {
+        throw new Error("should not be called");
+      })
+    );
+    expect(result.isError).toBe(true);
+  });
+
+  it("sonar_portfolio GETs /api/v1/portfolio", async () => {
+    const get = vi.fn().mockResolvedValue({ data: { kpis: {} } });
+    await runTool(toolsByName.sonar_portfolio, {}, mockClient(get));
+    expect(get).toHaveBeenCalledWith("/api/v1/portfolio");
+  });
+});
+
+describe("App Store Connect tools (sales, engagement)", () => {
+  it.each([
+    ["sonar_app_sales", "sales"],
+    ["sonar_app_engagement", "engagement"],
+  ])("%s GETs /apps/:id/%s with the date window", async (name, path) => {
+    const get = vi.fn().mockResolvedValue({ data: { status: "ready" } });
+    const result = await runTool(
+      toolsByName[name],
+      { app_id: "app 1", start: "2026-09-01", end: "2026-09-30" },
+      mockClient(get)
+    );
+    expect(result.isError).toBeFalsy();
+    expect(get).toHaveBeenCalledWith(`/api/v1/apps/app%201/${path}`, {
+      start: "2026-09-01",
+      end: "2026-09-30",
+      days: undefined,
+      store: undefined,
+    });
+    expect(JSON.parse(result.content[0].text)).toEqual({ status: "ready" });
+  });
+
+  it("forwards days and the store disambiguator", async () => {
+    const get = vi.fn().mockResolvedValue({ data: {} });
+    await runTool(
+      toolsByName.sonar_app_sales,
+      { app_id: "com.example.app", days: 7, store: "ios" },
+      mockClient(get)
+    );
+    expect(get).toHaveBeenCalledWith("/api/v1/apps/com.example.app/sales", {
+      start: undefined,
+      end: undefined,
+      days: 7,
+      store: "ios",
+    });
+  });
+
+  it("passes a not-ready status through so the agent sees the message", async () => {
+    const payload = {
+      status: "not_connected",
+      connected: false,
+      message: "App Store Connect is not connected.",
+      totals: null,
+      days: [],
+    };
+    const get = vi.fn().mockResolvedValue({ data: payload });
+    const result = await runTool(
+      toolsByName.sonar_app_engagement,
+      { app_id: "app-1" },
+      mockClient(get)
+    );
+    expect(JSON.parse(result.content[0].text)).toEqual(payload);
+  });
+
+  it.each([
+    { days: 0 },
+    { days: 367 },
+    { start: "09/01/2026" },
+    { end: "2026-9-1" },
+  ])("rejects an invalid window %o before calling the API", async (bad) => {
+    const result = await runTool(
+      toolsByName.sonar_app_sales,
+      { app_id: "app-1", ...bad },
+      mockClient(async () => {
+        throw new Error("should not be called");
+      })
+    );
+    expect(result.isError).toBe(true);
+  });
+
+  it("surfaces the Agency-plan 403 as a tool error", async () => {
+    const result = await runTool(
+      toolsByName.sonar_app_sales,
+      { app_id: "app-1" },
+      mockClient(async () => {
+        throw new SonarApiError(
+          403,
+          "forbidden",
+          "App Store Connect data via the API requires the Agency plan. Upgrade at /settings/plan."
+        );
+      })
+    );
+    expect(result.isError).toBe(true);
+    expect(result.content[0].text).toMatch(/Agency plan/);
+  });
+
+  it("descriptions state Agency plan, iOS only, and the impressions definition", () => {
+    for (const name of ["sonar_app_sales", "sonar_app_engagement"]) {
+      expect(toolsByName[name].description).toMatch(/Agency plan/);
+      expect(toolsByName[name].description).toMatch(/App Store Connect connection/);
+      expect(toolsByName[name].description).toMatch(/iOS only/);
+    }
+    expect(toolsByName.sonar_app_engagement.description).toMatch(
+      /INCLUDE product page views/
+    );
+  });
+});
+
+describe("sonar_keyword_metrics — partial shed", () => {
+  it("folds the body retry hint into a shed term's message", async () => {
+    const get = vi.fn().mockResolvedValue({
+      data: [
+        { keyword: "habit tracker", store: "ios", country: "us", difficulty: 42 },
+        {
+          keyword: "sleep sounds",
+          store: "ios",
+          country: "us",
+          difficulty: 0,
+          error: {
+            code: "rate_limited",
+            message: "Scraper queue is busy — retry this keyword shortly.",
+            retry_after_seconds: 30,
+          },
+        },
+      ],
+    });
+    const result = await runTool(
+      toolsByName.sonar_keyword_metrics,
+      { keywords: ["habit tracker", "sleep sounds"], store: "ios" },
+      mockClient(get)
+    );
+    const data = JSON.parse(result.content[0].text);
+    // Retry-After on a 200 is nonstandard and gets stripped by proxies, so
+    // the wait travels in the body — an agent must see it in the message.
+    expect(data[1].error.message).toMatch(/Retry after 30s/);
+    expect(data[1].error.message).toMatch(/not charged/i);
+    expect(data[1].error.retry_after_seconds).toBe(30);
+    expect(data[0].error).toBeUndefined();
+  });
+
+  it("leaves served terms and hint-less errors untouched", async () => {
+    const get = vi.fn().mockResolvedValue({
+      data: [
+        {
+          keyword: "budget app",
+          store: "ios",
+          country: "us",
+          difficulty: 0,
+          error: { code: "unavailable", message: "Store data is temporarily unavailable." },
+        },
+      ],
+    });
+    const result = await runTool(
+      toolsByName.sonar_keyword_metrics,
+      { keywords: ["budget app"], store: "ios" },
+      mockClient(get)
+    );
+    const data = JSON.parse(result.content[0].text);
+    expect(data[0].error.message).toBe("Store data is temporarily unavailable.");
   });
 });

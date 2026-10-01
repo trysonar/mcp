@@ -21,9 +21,10 @@ export const removeCompetitorTool: ToolDefinition<typeof inputSchema> = {
   name: "sonar_remove_competitor",
   title: "Remove Competitor",
   description:
-    "WRITE tool — remove a competitor from a product in the caller's Sonar workspace. Requires a Full plan (trial counts) and an API key with the write scope.",
+    "WRITE tool — remove a competitor from a product in the caller's Sonar workspace. Requires an Indie plan (trial counts) and an authorized Sonar account or an API key with the write scope.",
   inputSchema,
   annotations: {
+    openWorldHint: false,
     readOnlyHint: false,
     destructiveHint: true,
     idempotentHint: true,

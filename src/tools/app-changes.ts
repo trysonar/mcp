@@ -26,7 +26,7 @@ export const appChangesTool: ToolDefinition<typeof inputSchema> = {
   name: "sonar_app_changes",
   title: "App Change History",
   description:
-    "Change history for a tracked app — detected releases, metadata edits, screenshot swaps, price changes, and category moves, newest first. Useful for correlating rank movements with what the app (or a competitor) changed. Requires a Full plan (trial counts).",
+    "Change history for a tracked app — detected releases, metadata edits, screenshot swaps, price changes, and category moves, newest first. Useful for correlating rank movements with what the app (or a competitor) changed. Requires an Indie plan (trial counts).",
   inputSchema,
   annotations: readAnnotations,
   async handler(args, client) {

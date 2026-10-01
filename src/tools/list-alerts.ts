@@ -8,7 +8,7 @@ export const listAlertsTool: ToolDefinition<typeof inputSchema> = {
   name: "sonar_list_alerts",
   title: "List Alert Rules",
   description:
-    "List your alert subscriptions — each rule defines a change type (rank drops, review spikes, etc.), its scope (a specific app or org-wide), threshold, and whether it's enabled. Requires a Full plan (trial counts).",
+    "List your alert subscriptions — each rule defines a change type (rank drops, review spikes, etc.), its scope (a specific app or org-wide), threshold, and whether it's enabled. Requires an Indie plan (trial counts).",
   inputSchema,
   annotations: readAnnotations,
   async handler(_args, client) {

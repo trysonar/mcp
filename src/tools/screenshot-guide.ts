@@ -110,6 +110,7 @@ const guideInputSchema = z.object({});
 
 export const screenshotLayoutGuideTool: ToolDefinition<typeof guideInputSchema> = {
   name: "sonar_screenshot_layout_guide",
+  authentication: "none",
   title: "Screenshot Layout Guide",
   description:
     "The layout-format reference for Sonar screenshot sets. Call this ONCE before creating or editing screenshot layouts — it documents the layout JSON schema, coordinate system, image handling (remote URLs), flowing background shapes, fonts, translation overrides, and the recommended workflow.",

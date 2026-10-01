@@ -11,14 +11,14 @@ export interface ToolDefinition<I extends z.ZodType> {
   title: string;
   description: string;
   inputSchema: I;
-  /**
-   * MCP tool annotations (readOnlyHint, destructiveHint, idempotentHint).
-   * Omitted for the original read tools; set on write tools so clients can
-   * surface mutation warnings.
-   */
-  annotations?: {
-    readOnlyHint?: boolean;
-    destructiveHint?: boolean;
+  /** Hosted tools require OAuth unless explicitly anonymous or optional. */
+  authentication?: "none" | "optional";
+  /** Tools that operate on the MCP host's filesystem must not be hosted. */
+  localOnly?: boolean;
+  annotations: {
+    readOnlyHint: boolean;
+    destructiveHint: boolean;
+    openWorldHint: boolean;
     idempotentHint?: boolean;
   };
   handler: (args: z.infer<I>, client: ApiClient) => Promise<unknown>;
@@ -32,6 +32,28 @@ export interface McpToolResult {
   [key: string]: unknown;
   content: Array<{ type: "text"; text: string }>;
   isError?: boolean;
+  _meta?: Record<string, unknown>;
+}
+
+export interface ToolRuntime {
+  oauth?: { resourceMetadataUrl: string; scopes: string[] };
+  hasCredentials?: boolean;
+  hosted?: boolean;
+  /** Optional resource-specific verification in addition to backing API auth. */
+  validateCredentials?: () => Promise<boolean>;
+}
+
+function authenticationRequired(runtime: ToolRuntime): McpToolResult {
+  const metadataUrl = runtime.oauth!.resourceMetadataUrl;
+  return {
+    isError: true,
+    content: [{ type: "text", text: "Connect your Sonar account to continue." }],
+    _meta: {
+      "mcp/www_authenticate": [
+        `Bearer resource_metadata="${metadataUrl}", error="invalid_token", error_description="Connect your Sonar account to continue"`,
+      ],
+    },
+  };
 }
 
 /**
@@ -42,7 +64,8 @@ export interface McpToolResult {
 export async function runTool<I extends z.ZodType>(
   tool: ToolDefinition<I>,
   rawArgs: unknown,
-  client: ApiClient
+  client: ApiClient,
+  runtime: ToolRuntime = {}
 ): Promise<McpToolResult> {
   const parsed = tool.inputSchema.safeParse(rawArgs);
   if (!parsed.success) {
@@ -59,6 +82,13 @@ export async function runTool<I extends z.ZodType>(
     };
   }
 
+  if (runtime.oauth && !runtime.hasCredentials && !tool.authentication) {
+    return authenticationRequired(runtime);
+  }
+  if (runtime.oauth && runtime.hasCredentials && runtime.validateCredentials) {
+    if (!(await runtime.validateCredentials())) return authenticationRequired(runtime);
+  }
+
   try {
     const data = await tool.handler(parsed.data, client);
     // Strings (e.g. the embedded layout guide) pass through raw — JSON-quoting
@@ -69,12 +99,27 @@ export async function runTool<I extends z.ZodType>(
     };
   } catch (err) {
     if (err instanceof SonarApiError) {
+      if (runtime.oauth && err.status === 401) {
+        return authenticationRequired(runtime);
+      }
+      // Native plugins may explain missing entitlements, but must not promote
+      // subscription/credit purchases. Keep API/CLI error text unchanged.
+      let message = runtime.hosted && [401, 402, 403].includes(err.status)
+        ? err.status === 401
+          ? "Authentication failed. Reconnect your Sonar account."
+          : "This tool is unavailable with this account's current permissions or entitlements."
+        : err.message;
+      if (runtime.hosted && err.status === 429) {
+        const retryHint = err.message.match(/Retry after \d+s\./i)?.[0];
+        message = "This request exceeds the current usage limit. Reduce the batch size or retry later.";
+        if (retryHint) message += ` ${retryHint}`;
+      }
       return {
         isError: true,
         content: [
           {
             type: "text",
-            text: `Sonar API error (${err.status} ${err.code}): ${err.message}`,
+            text: `Sonar API error (${err.status} ${err.code}): ${message}`,
           },
         ],
       };
@@ -84,9 +129,9 @@ export async function runTool<I extends z.ZodType>(
       content: [
         {
           type: "text",
-          text: `Tool ${tool.name} failed: ${
-            err instanceof Error ? err.message : String(err)
-          }`,
+          text: runtime.hosted
+            ? `Tool ${tool.name} could not complete. Please retry later.`
+            : `Tool ${tool.name} failed: ${err instanceof Error ? err.message : String(err)}`,
         },
       ],
     };
@@ -95,7 +140,7 @@ export async function runTool<I extends z.ZodType>(
 
 /**
  * Translate a write-endpoint 401/403 into an actionable message. The server
- * enforces the actual gating (Full plan + `write`-scope key) — we only make
+ * enforces the actual gating (Indie plan + `write`-scope key) — we only make
  * its rejection self-explanatory so the agent can tell the user what to fix.
  */
 function mapWriteAuthError(err: unknown): never {
@@ -107,7 +152,7 @@ function mapWriteAuthError(err: unknown): never {
       err.status,
       err.code,
       `${err.message} Sonar write tools require an API key with the "write" scope ` +
-        `(create one at https://trysonar.app/settings/developers) and a Full plan ` +
+        `(create one at https://trysonar.app/settings/developers) and an Indie plan ` +
         `(an active trial counts).`
     );
   }
@@ -156,17 +201,21 @@ export async function deleteWrite<T>(
 export const writeAnnotations = {
   readOnlyHint: false,
   destructiveHint: false,
+  openWorldHint: false,
   idempotentHint: false,
 } as const;
 
-/**
- * Annotations for the org-scoped read tools. The original stateless read
- * tools predate annotations and omit them; new read tools mark themselves
- * read-only so MCP clients can skip mutation warnings.
- */
+/** Reads confined to the user's workspace or bundled reference material. */
 export const readAnnotations = {
   readOnlyHint: true,
+  destructiveHint: false,
+  openWorldHint: false,
+  idempotentHint: true,
 } as const;
+
+/** Queries of public app stores, rather than a bounded private workspace. */
+export const publicReadAnnotations = { ...readAnnotations, openWorldHint: true } as const;
+export const publicWriteAnnotations = { ...writeAnnotations, openWorldHint: true } as const;
 
 export const storeSchema = z
   .enum(["ios", "android"])

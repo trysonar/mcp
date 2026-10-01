@@ -1,6 +1,6 @@
 import { z } from "zod";
 import type { ApiResponse, ScanCompetitorResult } from "../types.js";
-import { postWrite, writeAnnotations, type ToolDefinition } from "./shared.js";
+import { postWrite, publicWriteAnnotations, type ToolDefinition } from "./shared.js";
 
 const inputSchema = z.object({
   competitor_app_id: z
@@ -21,9 +21,9 @@ export const scanCompetitorTool: ToolDefinition<typeof inputSchema> = {
   name: "sonar_scan_competitor",
   title: "Scan Competitor Keywords",
   description:
-    "WRITE tool — runs an AI keyword discovery scan on a tracked competitor: generates the search terms the competitor's listing is optimized for (brand terms included), queues them for SERP verification, and verifies the first batch inline (~30s), recording both apps' ranks. Returns generated/queued/verified_now counts; the rest verify in the background over the following hours — read results with sonar_competitor_keywords. Requires a Full plan (trial counts) and an API key with the write scope.",
+    "WRITE tool — runs an AI keyword discovery scan on a tracked competitor: generates the search terms the competitor's listing is optimized for (brand terms included), queues them for SERP verification, and verifies the first batch inline (~30s), recording both apps' ranks. Returns generated/queued/verified_now counts; the rest verify in the background over the following hours — read results with sonar_competitor_keywords. Requires an Indie plan (trial counts) and an authorized Sonar account or an API key with the write scope.",
   inputSchema,
-  annotations: writeAnnotations,
+  annotations: publicWriteAnnotations,
   async handler(args, client) {
     const res = await postWrite<ApiResponse<ScanCompetitorResult>>(
       client,

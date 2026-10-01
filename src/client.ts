@@ -109,7 +109,10 @@ export function createClient(config: ClientConfig): ApiClient {
     throw new SonarApiError(
       response.status,
       body?.error?.code ?? defaultCodeForStatus(response.status),
-      body?.error?.message ?? defaultMessageForStatus(response.status)
+      withRetryAfter(
+        body?.error?.message ?? defaultMessageForStatus(response.status),
+        response
+      )
     );
   }
 
@@ -228,6 +231,20 @@ export function createClient(config: ClientConfig): ApiClient {
   };
 }
 
+/**
+ * Append the server's Retry-After hint to a 429/503 message. The API sizes
+ * that header to the real scraper-queue depth, so an agent that reads it
+ * backs off at the drain rate instead of hammering — a bare "retry later"
+ * invites exactly the retry storms it is meant to prevent.
+ */
+function withRetryAfter(message: string, response: Response): string {
+  if (response.status !== 429 && response.status !== 503) return message;
+  const seconds = Number(response.headers.get("Retry-After"));
+  if (!Number.isFinite(seconds) || seconds <= 0) return message;
+  if (/retry-after|retry in \d/i.test(message)) return message;
+  return `${message} Retry after ${seconds}s.`;
+}
+
 function defaultCodeForStatus(status: number): string {
   if (status === 401) return "unauthorized";
   if (status === 403) return "forbidden";
@@ -241,7 +258,7 @@ function defaultMessageForStatus(status: number): string {
   if (status === 401)
     return "Authentication failed. Check your SONAR_API_KEY.";
   if (status === 403)
-    return "Access denied. This endpoint may require a Full plan subscription.";
+    return "Access denied. This endpoint may require an Indie plan subscription.";
   if (status === 404) return "Resource not found.";
   if (status === 429) return "Rate limit exceeded. Please retry later.";
   if (status >= 500) return "Server error. Please try again later.";

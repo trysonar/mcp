@@ -21,6 +21,15 @@ import {
 } from "./competitor-landscape.js";
 import { listProductsTool } from "./list-products.js";
 import { listAlertsTool } from "./list-alerts.js";
+import { alertEventsTool } from "./alert-events.js";
+import { appOverviewTool } from "./app-overview.js";
+import { discoveredKeywordsTool } from "./discovered-keywords.js";
+import { portfolioTool } from "./portfolio.js";
+import { appEngagementTool, appSalesTool } from "./app-store-connect.js";
+import {
+  generateReviewInsightsTool,
+  reviewInsightsTool,
+} from "./review-insights.js";
 import { createProductTool } from "./create-product.js";
 import { trackAppTool } from "./track-app.js";
 import { trackCompetitorTool } from "./track-competitor.js";
@@ -68,7 +77,7 @@ export const tools: Tool[] = [
   keywordSuggestionsTool,
   topChartsTool,
   // Read tools — org-scoped (the caller's tracked apps/keywords/competitors).
-  // Server enforces Full plan; read scope is enough.
+  // Server enforces Indie plan; read scope is enough.
   listAppsTool,
   getAppTool,
   appKeywordsTool,
@@ -79,8 +88,16 @@ export const tools: Tool[] = [
   competitorLandscapeTool,
   listProductsTool,
   listAlertsTool,
+  alertEventsTool,
+  appOverviewTool,
+  discoveredKeywordsTool,
+  reviewInsightsTool,
+  portfolioTool,
+  // App Store Connect reads — Agency plan + an ASC connection, iOS only.
+  appSalesTool,
+  appEngagementTool,
   // Write tools — mutate the caller's workspace. The server enforces
-  // Full plan + write-scope key; see postWrite/patchWrite/deleteWrite in shared.ts.
+  // Indie plan + write-scope key; see postWrite/patchWrite/deleteWrite in shared.ts.
   createProductTool,
   trackAppTool,
   trackCompetitorTool,
@@ -89,6 +106,7 @@ export const tools: Tool[] = [
   starKeywordTool,
   scanCompetitorTool,
   analyzeCompetitorsTool,
+  generateReviewInsightsTool,
   deleteTrackedKeywordTool,
   untrackKeywordsTool,
   untrackAppTool,
@@ -96,7 +114,7 @@ export const tools: Tool[] = [
   removeCompetitorTool,
   setAlertTool,
   deleteAlertTool,
-  // Screenshot Studio (Full plan; mutations need a write-scope key)
+  // Screenshot Studio (Indie plan; mutations need a write-scope key)
   screenshotLayoutGuideTool,
   screenshotDevicesTool,
   listScreenshotSetsTool,

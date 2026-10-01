@@ -1,6 +1,6 @@
 import { z } from "zod";
 import type { ApiResponse, ExtractKeywordsResult } from "../types.js";
-import { readAnnotations, storeSchema, countrySchema, type ToolDefinition } from "./shared.js";
+import { publicReadAnnotations, storeSchema, countrySchema, type ToolDefinition } from "./shared.js";
 
 const inputSchema = z.object({
   store: storeSchema,
@@ -26,7 +26,8 @@ export const appExtractKeywordsTool: ToolDefinition<typeof inputSchema> = {
   description:
     "Extract the most likely target keywords from an app's title and description, ranked by relevance. Useful for understanding what an app (yours or a competitor) is optimizing for. Works without an API key (free tier, limited daily use per IP).",
   inputSchema,
-  annotations: readAnnotations,
+  authentication: "optional",
+  annotations: publicReadAnnotations,
   async handler(args, client) {
     const res = await client.get<ApiResponse<ExtractKeywordsResult>>(
       "/api/v1/apps/extract-keywords",

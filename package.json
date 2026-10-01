@@ -1,6 +1,6 @@
 {
   "name": "@sonarapp/mcp",
-  "version": "0.7.0",
+  "version": "0.10.1",
   "mcpName": "app.trysonar/sonar",
   "description": "Sonar MCP server — App Store Optimization tools for AI agents (Claude, Cursor, Cline)",
   "keywords": [
@@ -49,6 +49,7 @@
     "build": "tsup",
     "build:mcpb": "npm run build && node scripts/build-mcpb.mjs",
     "dev": "tsx src/index.ts",
+    "pretest": "npm run build",
     "test": "vitest run",
     "prepublishOnly": "npm run build"
   },

@@ -13,9 +13,10 @@ export const deleteAlertTool: ToolDefinition<typeof inputSchema> = {
   name: "sonar_delete_alert",
   title: "Delete Alert Rule",
   description:
-    "WRITE tool — delete an alert subscription in the caller's Sonar workspace. Requires a Full plan (trial counts) and an API key with the write scope.",
+    "WRITE tool — delete an alert subscription in the caller's Sonar workspace. Requires an Indie plan (trial counts) and an authorized Sonar account or an API key with the write scope.",
   inputSchema,
   annotations: {
+    openWorldHint: false,
     readOnlyHint: false,
     destructiveHint: true,
     idempotentHint: true,

@@ -8,7 +8,7 @@ export const listProductsTool: ToolDefinition<typeof inputSchema> = {
   name: "sonar_list_products",
   title: "List Products",
   description:
-    "List your products with their linked store versions and competitor counts. Use it to discover product/app UUIDs. Requires a Full plan (trial counts).",
+    "List your products with their linked store versions and competitor counts. Use it to discover product/app UUIDs. Requires an Indie plan (trial counts).",
   inputSchema,
   annotations: readAnnotations,
   async handler(_args, client) {

@@ -22,9 +22,10 @@ export const updateKeywordNoteTool: ToolDefinition<typeof inputSchema> = {
   name: "sonar_update_keyword_note",
   title: "Update Keyword Note",
   description:
-    "WRITE tool — sets or clears the note on a tracked keyword in the caller's Sonar workspace (e.g. why it's tracked, an optimization hypothesis, a reminder). Idempotent: re-sending the same note is a no-op. Requires a Full plan (trial counts) and an API key with the write scope.",
+    "WRITE tool — sets or clears the note on a tracked keyword in the caller's Sonar workspace (e.g. why it's tracked, an optimization hypothesis, a reminder). Idempotent: re-sending the same note is a no-op. Requires an Indie plan (trial counts) and an authorized Sonar account or an API key with the write scope.",
   inputSchema,
   annotations: {
+    openWorldHint: false,
     readOnlyHint: false,
     destructiveHint: false,
     idempotentHint: true,

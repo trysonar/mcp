@@ -102,6 +102,13 @@ export interface KeywordSearchResult {
   /** Null for rows cached before the breakdown existed or thin SERPs. */
   difficulty_breakdown?: DifficultyBreakdown | null;
   results_count: number | null;
+  /**
+   * True when the API served a stored row past its 7-day warm window (up to
+   * 30 days, refreshed in the background) or fell back to an older
+   * measurement because the store could not be reached. Real data, billed
+   * like a cache hit — a `stale: true` row beats a 429.
+   */
+  stale?: boolean;
 }
 
 export interface KeywordSuggestion {
@@ -296,6 +303,13 @@ export interface AppRankingEntry {
   keyword_id: string;
   keyword: string;
   history: Array<{ rank: number; measured_at: string }>;
+  /** Completed checks and unknown gaps; history remains positive ranks for compatibility. */
+  observations?: Array<{
+    measured_at: string;
+    rank: number | null;
+    status: "ranked" | "not_found" | "not_observed";
+    results_count: number | null;
+  }>;
 }
 
 export interface AppChange {
@@ -343,7 +357,8 @@ export type AlertType =
   | "new_ranking"
   | "rating_drop"
   | "review_spike"
-  | "competitor_change";
+  | "competitor_change"
+  | "top_chart";
 
 export interface AlertRule {
   id: string;
@@ -351,6 +366,8 @@ export interface AlertRule {
   scope_app_id: string | null;
   threshold: number | null;
   effective_threshold: number | null;
+  /** top_chart only; null = the countries the org tracks keywords in. */
+  countries: string[] | null;
   enabled: boolean;
   created_at: string;
 }
@@ -402,4 +419,242 @@ export interface CompetitorKeyword {
   popularity: number | null;
   /** Proxy estimate shown when the Apple SP is censored to its floor (5). */
   popularity_proxy?: number | null;
+}
+
+export interface DiscoveredKeyword {
+  id: string;
+  keyword_id: string;
+  keyword: string;
+  store: Store;
+  country: string;
+  rank: number | null;
+  source: "autocomplete" | "metadata" | "serp_scan" | "competitor" | "apple_ads" | "ai";
+  status: "new" | "tracked" | "hidden";
+  bucket: "ranked" | "gap" | "idea" | null;
+  popularity: number | null;
+  popularity_proxy: number | null;
+  popularity_source: "apple" | "proxy" | null;
+  difficulty: number | null;
+  ai_relevance: number | null;
+  opportunity: number | null;
+  discovered_at: string;
+  ranks_checked_at: string | null;
+}
+
+export interface DiscoveredKeywordsResult {
+  app_id: string;
+  total: number;
+  keywords: DiscoveredKeyword[];
+}
+
+export interface AlertEvent {
+  id: string;
+  type: AlertType;
+  app_id: string | null;
+  keyword_id: string | null;
+  measured_at: string;
+  payload: Record<string, unknown>;
+  emailed_at: string | null;
+  created_at: string;
+}
+
+export interface ReviewInsightTheme {
+  theme: string;
+  detail: string;
+  frequency: "rare" | "occasional" | "common" | "very common";
+  quotes: string[];
+  trend: "new" | "persisting" | "growing" | "improving" | "resolved";
+}
+
+export interface ReviewInsightResult {
+  app_id: string;
+  country: string;
+  insight: {
+    generated_at: string;
+    reviews_analyzed: number;
+    avg_score: number | null;
+    window_start: string | null;
+    window_end: string | null;
+    model: string | null;
+    overview: string;
+    sentiment: "very negative" | "negative" | "mixed" | "positive" | "very positive";
+    praises: ReviewInsightTheme[];
+    complaints: ReviewInsightTheme[];
+    feature_requests: string[];
+    changes_since_last: string | null;
+  } | null;
+  cooldown: {
+    in_cooldown: boolean;
+    next_available_at: string | null;
+  };
+}
+
+export interface AppOverviewMover {
+  keyword_id: string;
+  keyword: string;
+  country: string;
+  rank: number | null;
+  change_7d: number | null;
+  popularity: number | null;
+  difficulty: number | null;
+}
+
+export interface AppOverviewResult {
+  app_id: string;
+  app_name: string;
+  store: Store;
+  days: number;
+  keywords: {
+    tracked: number;
+    ranked: number;
+    ranked_delta_7d: number | null;
+    top_10: number;
+    best_rank: { rank: number; keyword: string } | null;
+  };
+  competitors: number;
+  visibility: {
+    score: number;
+    delta_7d: number | null;
+    share_of_voice: number | null;
+    share_delta_7d: number | null;
+    branded_excluded: number;
+    spark: { date: string; value: number; share: number | null }[];
+  };
+  movement: {
+    improved_7d: number;
+    dropped_7d: number;
+    top_improvements: AppOverviewMover[];
+    top_drops: AppOverviewMover[];
+  };
+  rank_distribution: Array<
+    { date: string; total: number } & Record<string, number | string>
+  >;
+  opportunities: Array<{
+    keyword_id: string;
+    keyword: string;
+    country: string;
+    kind: "near_page_one" | "top_three_push" | "easy_target";
+    rank: number | null;
+    popularity: number | null;
+    difficulty: number | null;
+  }>;
+}
+
+export interface PortfolioResult {
+  kpis: {
+    apps: number;
+    keywords_tracked: number;
+    keywords_ranked: number;
+    top_10: number;
+    up_7d: number;
+    down_7d: number;
+    visibility: number;
+    visibility_prev_7d: number | null;
+    visibility_delta_7d: number | null;
+    avg_rating: number | null;
+    alerts_this_week: number;
+  };
+  apps: Array<{
+    app_id: string;
+    app_name: string;
+    icon_url: string | null;
+    store: Store;
+    keywords_tracked: number;
+    keywords_ranked: number;
+    top_10: number;
+    best_rank: number | null;
+    up_7d: number;
+    down_7d: number;
+    net_delta_7d: number;
+    visibility: number;
+    visibility_prev_7d: number | null;
+    visibility_delta_7d: number | null;
+    spark: { date: string; value: number }[];
+    rating: number | null;
+    rating_prev_7d: number | null;
+    review_count: number | null;
+  }>;
+  movers_up: Array<Record<string, unknown>>;
+  movers_down: Array<Record<string, unknown>>;
+  attention: Array<Record<string, unknown>>;
+  opportunities: Array<Record<string, unknown>>;
+}
+
+/** Why an App Store Connect endpoint has (or lacks) data. */
+export type AscMetricsStatus =
+  | "ready"
+  | "not_connected"
+  | "not_ios"
+  | "app_not_in_account"
+  | "pending"
+  | "key_lacks_analytics";
+
+/** Envelope fields shared by /apps/:id/sales and /apps/:id/engagement. */
+export interface AscMetricsBase {
+  app_id: string;
+  app_name: string;
+  store: Store;
+  status: AscMetricsStatus;
+  connected: boolean;
+  /** Human-readable reason when status !== "ready", else null. */
+  message: string | null;
+  apple_app_id: string | null;
+  last_synced_at: string | null;
+  range: { start: string; end: string };
+  reported_days: number;
+}
+
+export interface AppSalesMetrics {
+  downloads: number;
+  redownloads: number;
+  iap_units: number;
+  proceeds_usd_approx: number;
+}
+
+export interface AppSalesResult extends AscMetricsBase {
+  totals: AppSalesMetrics | null;
+  days: Array<
+    | ({ date: string; reported: true } & AppSalesMetrics)
+    | {
+        date: string;
+        reported: false;
+        downloads: null;
+        redownloads: null;
+        iap_units: null;
+        proceeds_usd_approx: null;
+      }
+  >;
+  countries: Array<{ country: string } & AppSalesMetrics>;
+}
+
+export interface AppEngagementResult extends AscMetricsBase {
+  totals: {
+    impressions: number;
+    product_page_views: number;
+    downloads: number;
+    installs: number;
+    deletions: number;
+    sessions: number;
+  } | null;
+  rates: {
+    page_view_rate: number | null;
+    download_rate: number | null;
+    search_share: number | null;
+  } | null;
+  sources: Array<{
+    source_type: string;
+    impressions: number;
+    product_page_views: number;
+    share_of_impressions: number | null;
+  }>;
+  days: Array<{
+    date: string;
+    reported: boolean;
+    impressions: number | null;
+    product_page_views: number | null;
+    installs: number | null;
+    deletions: number | null;
+    sessions: number | null;
+    downloads: number | null;
+  }>;
 }

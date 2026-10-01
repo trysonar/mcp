@@ -27,14 +27,25 @@ async function sendInitialize(
     });
     let stdout = "";
     let stderr = "";
+    const timeout = setTimeout(() => {
+      child.kill();
+      reject(new Error(`MCP handshake timed out. stderr: ${stderr}`));
+    }, 10_000);
     child.stdout.on("data", (d) => {
       stdout += d.toString();
-      // Kill as soon as we get a JSON-RPC response — proves stdio is alive.
-      if (stdout.includes('"jsonrpc"')) child.kill();
+      // Wait for a complete newline-delimited response, not a partial chunk.
+      if (stdout.includes('"jsonrpc"') && stdout.includes("\n")) child.kill();
     });
     child.stderr.on("data", (d) => (stderr += d.toString()));
-    child.on("error", reject);
-    child.on("exit", (code) => resolveP({ stdout, stderr, exitCode: code }));
+    child.on("error", (error) => {
+      clearTimeout(timeout);
+      reject(error);
+    });
+    // `exit` may fire before the stdout/stderr streams have drained.
+    child.on("close", (code) => {
+      clearTimeout(timeout);
+      resolveP({ stdout, stderr, exitCode: code });
+    });
     child.stdin.write(
       JSON.stringify({
         jsonrpc: "2.0",
@@ -47,11 +58,10 @@ async function sendInitialize(
         },
       }) + "\n"
     );
-    setTimeout(() => child.kill(), 3000);
   });
 }
 
-describe("bin entrypoint", () => {
+describe("bin entrypoint", { timeout: 15_000 }, () => {
   beforeAll(() => {
     if (!existsSync(DIST)) {
       throw new Error(

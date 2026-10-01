@@ -3,7 +3,7 @@ import type { ApiResponse, TrackCompetitorResult } from "../types.js";
 import {
   storeSchema,
   postWrite,
-  writeAnnotations,
+  publicWriteAnnotations,
   type ToolDefinition,
 } from "./shared.js";
 
@@ -35,9 +35,9 @@ export const trackCompetitorTool: ToolDefinition<typeof inputSchema> = {
   name: "sonar_track_competitor",
   title: "Track Competitor",
   description:
-    "WRITE tool — adds a competitor app under a Sonar product so its keywords and rankings get tracked alongside the product's own app. The product must already have its own app linked in the same store as the competitor. Requires a Full plan (trial counts) and an API key with the write scope.",
+    "WRITE tool — adds a competitor app under a Sonar product so its keywords and rankings get tracked alongside the product's own app. The product must already have its own app linked in the same store as the competitor. Requires an Indie plan (trial counts) and an authorized Sonar account or an API key with the write scope.",
   inputSchema,
-  annotations: writeAnnotations,
+  annotations: publicWriteAnnotations,
   async handler(args, client) {
     const res = await postWrite<ApiResponse<TrackCompetitorResult>>(
       client,

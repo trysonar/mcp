@@ -24,7 +24,7 @@ export const competitorLandscapeTool: ToolDefinition<typeof readInputSchema> = {
   name: "sonar_competitor_landscape",
   title: "Competitor Landscape",
   description:
-    "The full competitive keyword picture for one of your own apps vs every tracked competitor, in one call: live stats (keyword gaps where competitors rank and you don't, winnable gaps, competitors climbing on your tracked keywords, keywords you lead), the top gap/threat/lead rows with metrics, and the latest AI insight if one was generated (opportunity clusters, threat narratives, strengths, posture). Read this before deciding which keywords to target next. Requires a Full plan (trial counts).",
+    "The full competitive keyword picture for one of your own apps vs every tracked competitor, in one call: live stats (keyword gaps where competitors rank and you don't, winnable gaps, competitors climbing on your tracked keywords, keywords you lead), the top gap/threat/lead rows with metrics, and the latest AI insight if one was generated (opportunity clusters, threat narratives, strengths, posture). Read this before deciding which keywords to target next. Requires an Indie plan (trial counts).",
   inputSchema: readInputSchema,
   annotations: readAnnotations,
   async handler(args, client) {
@@ -48,7 +48,7 @@ export const analyzeCompetitorsTool: ToolDefinition<typeof analyzeInputSchema> =
   name: "sonar_analyze_competitors",
   title: "Analyze Competitors (AI)",
   description:
-    "WRITE tool — generates a fresh AI competitive insight for one of your own apps: clusters the keyword gaps vs your competitors into named opportunity themes (with a why-now narrative and per-keyword metrics), writes threat narratives for competitors climbing on your keywords, and diffs against the previous analysis. At most one analysis per app per 7 days (429 with the next available time while in cooldown — use sonar_competitor_landscape to read the current one). Requires a Full plan (trial counts) and an API key with the write scope.",
+    "WRITE tool — generates a fresh AI competitive insight for one of your own apps: clusters the keyword gaps vs your competitors into named opportunity themes (with a why-now narrative and per-keyword metrics), writes threat narratives for competitors climbing on your keywords, and diffs against the previous analysis. At most one analysis per app per 7 days (429 with the next available time while in cooldown — use sonar_competitor_landscape to read the current one). Requires a paid (non-trial) Indie plan and an authorized Sonar account or an API key with the write scope.",
   inputSchema: analyzeInputSchema,
   annotations: writeAnnotations,
   async handler(args, client) {

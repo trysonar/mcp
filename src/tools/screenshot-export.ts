@@ -2,7 +2,7 @@ import { mkdir, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { z } from "zod";
 import type { ApiResponse } from "../types.js";
-import { readAnnotations, type ToolDefinition } from "./shared.js";
+import { writeAnnotations, type ToolDefinition } from "./shared.js";
 
 type ExportMeta = {
   id: string;
@@ -38,11 +38,12 @@ const exportInputSchema = z.object({
 
 export const exportScreenshotsTool: ToolDefinition<typeof exportInputSchema> = {
   name: "sonar_export_screenshots",
+  localOnly: true,
   title: "Export Screenshots (PNG)",
   description:
     "Render a screenshot set to store-ready PNGs SERVER-SIDE (no browser needed) and save them as one ZIP per locale in output_dir — ready for App Store Connect / Play Console upload. Rendering happens through the same engine as the Screenshot Studio editor. Writes to the filesystem of the machine running the MCP server, so this tool is for local (stdio) use; over the hosted transport call GET /api/v1/screenshots/sets/:id/export directly instead.",
   inputSchema: exportInputSchema,
-  annotations: readAnnotations,
+  annotations: { ...writeAnnotations, destructiveHint: true, openWorldHint: true },
   async handler(args, client) {
     const meta = (
       await client.get<ApiResponse<ExportMeta>>(

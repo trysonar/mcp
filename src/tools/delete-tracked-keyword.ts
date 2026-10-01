@@ -15,9 +15,10 @@ export const deleteTrackedKeywordTool: ToolDefinition<typeof inputSchema> = {
   name: "sonar_delete_tracked_keyword",
   title: "Delete Tracked Keyword",
   description:
-    "WRITE tool — stop tracking one keyword/app pair in the caller's Sonar workspace. Identify the pair by its tracked-keyword id (from sonar_app_keywords). Requires a Full plan (trial counts) and an API key with the write scope.",
+    "WRITE tool — stop tracking one keyword/app pair in the caller's Sonar workspace. Identify the pair by its tracked-keyword id (from sonar_app_keywords). Requires an Indie plan (trial counts) and an authorized Sonar account or an API key with the write scope.",
   inputSchema,
   annotations: {
+    openWorldHint: false,
     readOnlyHint: false,
     destructiveHint: true,
     idempotentHint: true,

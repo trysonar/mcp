@@ -1,6 +1,6 @@
 import { z } from "zod";
 import type { ApiResponse } from "../types.js";
-import { readAnnotations, storeSchema, countrySchema, type ToolDefinition } from "./shared.js";
+import { publicReadAnnotations, storeSchema, countrySchema, type ToolDefinition } from "./shared.js";
 
 const inputSchema = z.object({
   store: storeSchema,
@@ -20,9 +20,9 @@ const inputSchema = z.object({
     .number()
     .int()
     .min(1)
-    .max(100)
+    .max(200)
     .default(50)
-    .describe("Number of chart entries to return (1-100). Default 50."),
+    .describe("Number of chart entries to return (1-200). Default 50."),
 });
 
 export const topChartsTool: ToolDefinition<typeof inputSchema> = {
@@ -32,11 +32,12 @@ export const topChartsTool: ToolDefinition<typeof inputSchema> = {
     "Get a store top chart (free / paid / grossing, overall or by category) with day-over-day " +
     "movement: per-app rank delta, apps new to the chart, biggest movers and apps that dropped " +
     "out. Use to see what's rising in a market or category. Note: summary, movers and droppedApps " +
-    "always describe the full top 100 — `limit` truncates the returned entries only. Movement is " +
+    "always describe the full top 200 — `limit` truncates the returned entries only. Movement is " +
     "empty on the first day a chart is requested (no previous snapshot yet). Works without an API " +
     "key (free tier, limited daily use per IP).",
   inputSchema,
-  annotations: readAnnotations,
+  authentication: "optional",
+  annotations: publicReadAnnotations,
   async handler(args, client) {
     const res = await client.get<ApiResponse<unknown>>("/api/v1/charts/top", {
       store: args.store,

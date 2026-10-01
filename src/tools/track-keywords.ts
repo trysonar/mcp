@@ -1,6 +1,6 @@
 import { z } from "zod";
 import type { ApiResponse, TrackKeywordsResult } from "../types.js";
-import { postWrite, writeAnnotations, type ToolDefinition } from "./shared.js";
+import { postWrite, publicWriteAnnotations, type ToolDefinition } from "./shared.js";
 
 const inputSchema = z.object({
   app_id: z
@@ -30,9 +30,9 @@ export const trackKeywordsTool: ToolDefinition<typeof inputSchema> = {
   name: "sonar_track_keywords",
   title: "Track Keywords",
   description:
-    "WRITE tool — starts daily rank tracking for one or more keywords on an app in the caller's Sonar workspace. Idempotent: re-posting the same terms reports them as already_tracked instead of creating duplicates. Returns per-keyword outcomes (created / already_tracked / failed). Requires a Full plan (trial counts) and an API key with the write scope.",
+    "WRITE tool — starts daily rank tracking for one or more keywords on an app in the caller's Sonar workspace. Idempotent: re-posting the same terms reports them as already_tracked instead of creating duplicates. Returns per-keyword outcomes (created / already_tracked / failed). Requires an Indie plan (trial counts) and an authorized Sonar account or an API key with the write scope.",
   inputSchema,
-  annotations: writeAnnotations,
+  annotations: publicWriteAnnotations,
   async handler(args, client) {
     const res = await postWrite<ApiResponse<TrackKeywordsResult>>(
       client,

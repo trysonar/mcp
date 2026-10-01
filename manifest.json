@@ -3,9 +3,9 @@
   "manifest_version": "0.2",
   "name": "sonar",
   "display_name": "Sonar — App Store Optimization",
-  "version": "0.7.0",
+  "version": "0.10.1",
   "description": "ASO tools for AI agents: keyword research, rank tracking, competitor analysis (iOS & Android).",
-  "long_description": "Sonar gives Claude real App Store Optimization data for the iOS App Store and Google Play: keyword difficulty and search popularity, app lookups and search rankings, ASO audit scores, review mining, revenue estimates, and (with a Sonar account) tracked apps, daily rank history, competitor analysis, and Screenshot Studio. Works without an API key on a limited free tier — app search & lookup, keyword suggestions, ASO score, keyword extraction, and a small daily allowance of keyword metrics. Create a free API key at https://trysonar.app/developers for full access.",
+  "long_description": "Sonar gives Claude real App Store Optimization data for the iOS App Store and Google Play: keyword difficulty and search popularity, app lookups and search rankings, ASO audit scores, review mining, revenue estimates, and (with a Sonar account) tracked apps, daily rank history, competitor analysis, and Screenshot Studio. Works without an API key on a limited free tier — app search & lookup, keyword suggestions, ASO score, keyword extraction, top charts, and a small daily allowance of keyword metrics. Create a free API key at https://trysonar.app/developers for full access, or use the hosted endpoint at https://trysonar.app/mcp with OAuth browser sign-in (no key needed).",
   "author": {
     "name": "Peter Sutarik",
     "email": "hello@trysonar.app",
@@ -103,6 +103,10 @@
       "description": "Keyword Suggestions"
     },
     {
+      "name": "sonar_top_charts",
+      "description": "Top Charts"
+    },
+    {
       "name": "sonar_list_apps",
       "description": "List Tracked Apps"
     },
@@ -131,12 +135,44 @@
       "description": "Competitor Keywords"
     },
     {
+      "name": "sonar_competitor_landscape",
+      "description": "Competitor Landscape"
+    },
+    {
       "name": "sonar_list_products",
       "description": "List Products"
     },
     {
       "name": "sonar_list_alerts",
       "description": "List Alert Rules"
+    },
+    {
+      "name": "sonar_alert_events",
+      "description": "Alert Events Feed"
+    },
+    {
+      "name": "sonar_app_overview",
+      "description": "App Overview (Dashboard Scoreboard)"
+    },
+    {
+      "name": "sonar_discovered_keywords",
+      "description": "Discovered Keywords"
+    },
+    {
+      "name": "sonar_review_insights",
+      "description": "Review Insights (AI)"
+    },
+    {
+      "name": "sonar_portfolio",
+      "description": "Portfolio Rollup (Agency)"
+    },
+    {
+      "name": "sonar_app_sales",
+      "description": "App Sales (App Store Connect)"
+    },
+    {
+      "name": "sonar_app_engagement",
+      "description": "App Engagement (App Store Connect)"
     },
     {
       "name": "sonar_create_product",
@@ -165,6 +201,14 @@
     {
       "name": "sonar_scan_competitor",
       "description": "Scan Competitor Keywords"
+    },
+    {
+      "name": "sonar_analyze_competitors",
+      "description": "Analyze Competitors (AI)"
+    },
+    {
+      "name": "sonar_generate_review_insights",
+      "description": "Generate Review Insights (AI)"
     },
     {
       "name": "sonar_delete_tracked_keyword",
@@ -237,6 +281,10 @@
     {
       "name": "sonar_set_screenshot_translations",
       "description": "Set Screenshot Translations"
+    },
+    {
+      "name": "sonar_export_screenshots",
+      "description": "Export Screenshots (PNG)"
     }
   ]
 }

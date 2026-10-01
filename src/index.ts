@@ -7,16 +7,25 @@ import {
   ListToolsRequestSchema,
 } from "@modelcontextprotocol/sdk/types.js";
 import { z } from "zod";
+import packageInfo from "../package.json" with { type: "json" };
 import { createClient } from "./client.js";
 import { runTool, tools, toolsByName } from "./tools/index.js";
+import type { ToolRuntime } from "./tools/shared.js";
+
+export const MCP_OAUTH_SCOPES = ["openid", "profile", "email"];
+export const ANONYMOUS_TOOL_NAMES = new Set(
+  tools.filter((tool) => tool.authentication === "optional").map((tool) => tool.name)
+);
 
 const PACKAGE_NAME = "@sonarapp/mcp";
 const SERVER_NAME = "sonar";
-const SERVER_VERSION = "0.7.0";
+const SERVER_VERSION = packageInfo.version;
 
 function readConfigFromEnv(): ServerConfig {
   const apiKey = process.env.SONAR_API_KEY;
-  const baseUrl = process.env.SONAR_API_URL ?? "https://trysonar.app";
+  // api.trysonar.app hits the dedicated API box directly (Aug 2026);
+  // trysonar.app still works and proxies to the same backend.
+  const baseUrl = process.env.SONAR_API_URL ?? "https://api.trysonar.app";
   if (!apiKey) {
     // Inform but keep serving: keyless callers get the API's free tier —
     // app search/lookup, keyword suggestions, ASO score, keyword extraction,
@@ -42,7 +51,7 @@ function readConfigFromEnv(): ServerConfig {
   return { apiKey: apiKey ?? "", baseUrl };
 }
 
-export interface ServerConfig {
+export interface ServerConfig extends Omit<ToolRuntime, "hasCredentials"> {
   apiKey: string;
   baseUrl: string;
   extraHeaders?: Record<string, string>;
@@ -51,6 +60,7 @@ export interface ServerConfig {
 
 export function createServer(config?: ServerConfig) {
   const cfg = config ?? readConfigFromEnv();
+  const availableTools = tools.filter((tool) => !cfg.hosted || !tool.localOnly);
   const client = createClient({
     ...cfg,
     userAgent: cfg.userAgent ?? `sonar-mcp/${SERVER_VERSION}`,
@@ -62,36 +72,52 @@ export function createServer(config?: ServerConfig) {
   );
 
   server.setRequestHandler(ListToolsRequestSchema, async () => ({
-    tools: tools.map((tool) => ({
-      name: tool.name,
-      title: tool.title,
-      description: tool.description,
-      inputSchema: z.toJSONSchema(tool.inputSchema, {
-        target: "draft-7",
-        io: "input",
-      }) as Record<string, unknown>,
-      // `annotations.title` is where pre-2025-06-18 clients (and directory
-      // reviewers) look for the display name; emit it in both locations.
-      annotations: { title: tool.title, ...tool.annotations },
-    })),
+    tools: availableTools.map((tool) => {
+      const securitySchemes = cfg.oauth
+        ? [
+            ...(tool.authentication ? [{ type: "noauth" }] : []),
+            ...(tool.authentication !== "none"
+              ? [{ type: "oauth2", scopes: cfg.oauth.scopes }]
+              : []),
+          ]
+        : undefined;
+      return {
+        name: tool.name,
+        title: tool.title,
+        description: tool.description,
+        inputSchema: z.toJSONSchema(tool.inputSchema, {
+          target: "draft-7",
+          io: "input",
+        }) as Record<string, unknown>,
+        // Older clients and directory reviewers read annotations.title.
+        annotations: { title: tool.title, ...tool.annotations },
+        ...(securitySchemes ? {
+          securitySchemes,
+          _meta: { securitySchemes },
+        } : {}),
+      };
+    }),
   }));
 
   server.setRequestHandler(CallToolRequestSchema, async (request) => {
     const tool = toolsByName[request.params.name];
-    if (!tool) {
+    if (!tool || (cfg.hosted && tool.localOnly)) {
       return {
         isError: true,
         content: [
           {
             type: "text",
-            text: `Unknown tool: ${request.params.name}. Available: ${Object.keys(
-              toolsByName
-            ).join(", ")}`,
+            text: `Unknown tool: ${request.params.name}. Available: ${availableTools.map((t) => t.name).join(", ")}`,
           },
         ],
       };
     }
-    return runTool(tool, request.params.arguments ?? {}, client);
+    return runTool(tool, request.params.arguments ?? {}, client, {
+      oauth: cfg.oauth,
+      hosted: cfg.hosted,
+      hasCredentials: Boolean(cfg.apiKey),
+      validateCredentials: cfg.validateCredentials,
+    });
   });
 
   return server;

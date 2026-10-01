@@ -1,6 +1,6 @@
 import { z } from "zod";
 import type { ApiResponse, Review } from "../types.js";
-import { readAnnotations, storeSchema, countrySchema, type ToolDefinition } from "./shared.js";
+import { publicReadAnnotations, storeSchema, countrySchema, type ToolDefinition } from "./shared.js";
 
 const inputSchema = z.object({
   store: storeSchema,
@@ -11,6 +11,9 @@ const inputSchema = z.object({
       'Store-specific app identifier. iOS: numeric track ID. Android: package name.'
     ),
   country: countrySchema,
+  lang: z.string().regex(/^[a-z]{2}$/i).optional().describe(
+    "Android only: fetch one language feed (e.g. ar, fr). Omit to merge the market language plus en, es, fr, ar; coverage is not exhaustive."
+  ),
   sort: z
     .enum(["recent", "helpful"])
     .default("recent")
@@ -44,12 +47,13 @@ export const appReviewsTool: ToolDefinition<typeof inputSchema> = {
   description:
     "Fetch user reviews for an app. Supports filtering by star rating range and sorting by recent or helpful. Useful for sentiment analysis, feature-request mining, and competitive research.",
   inputSchema,
-  annotations: readAnnotations,
+  annotations: publicReadAnnotations,
   async handler(args, client) {
     const res = await client.get<ApiResponse<Review[]>>("/api/v1/apps/reviews", {
       store: args.store,
       id: args.store_id,
       country: args.country,
+      lang: args.lang,
       sort: args.sort,
       min_rating: args.min_rating,
       max_rating: args.max_rating,

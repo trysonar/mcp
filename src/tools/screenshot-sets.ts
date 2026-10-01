@@ -1,6 +1,6 @@
 import { z } from "zod";
 import type { ApiResponse } from "../types.js";
-import { readAnnotations, writeAnnotations, type ToolDefinition } from "./shared.js";
+import { readAnnotations, publicWriteAnnotations, type ToolDefinition } from "./shared.js";
 
 // Layout documents are validated server-side against the canonical zod
 // schema; the tools pass them through as opaque objects. Agents should read
@@ -96,9 +96,9 @@ export const createScreenshotSetTool: ToolDefinition<typeof createInputSchema> =
   name: "sonar_create_screenshot_set",
   title: "Create Screenshot Set",
   description:
-    "Create an app-store screenshot set for a product. Read sonar_screenshot_layout_guide first, then author the screens array. The set is immediately visible/editable for humans in the Screenshot Studio (studio_url in the response). Requires a write-scope API key.",
+    "Create an app-store screenshot set for a product. Read sonar_screenshot_layout_guide first, then author the screens array. The set is immediately visible/editable for humans in the Screenshot Studio (studio_url in the response). Requires an authorized Sonar account or a write-scope API key.",
   inputSchema: createInputSchema,
-  annotations: writeAnnotations,
+  annotations: publicWriteAnnotations,
   async handler(args, client) {
     const res = await client.request<ApiResponse<unknown>>(
       "POST",
@@ -162,9 +162,10 @@ export const updateScreenshotSetTool: ToolDefinition<typeof updateSetInputSchema
   name: "sonar_update_screenshot_set",
   title: "Update Screenshot Set",
   description:
-    "Rename a screenshot set, replace its extra-locale list, and/or reorder its screens. Returns the updated set (with image data stripped). Requires a write-scope API key.",
+    "Rename a screenshot set, replace its extra-locale list, and/or reorder its screens. Returns the updated set (with image data stripped). Requires an authorized Sonar account or a write-scope API key.",
   inputSchema: updateSetInputSchema,
   annotations: {
+    openWorldHint: false,
     readOnlyHint: false,
     destructiveHint: false,
     idempotentHint: true,
@@ -188,9 +189,10 @@ export const deleteScreenshotSetTool: ToolDefinition<typeof deleteSetInputSchema
   name: "sonar_delete_screenshot_set",
   title: "Delete Screenshot Set",
   description:
-    "Permanently delete a screenshot set and everything in it (screens, translations). Irreversible — confirm with the user before deleting work they may want. Requires a write-scope API key.",
+    "Permanently delete a screenshot set and everything in it (screens, translations). Irreversible — confirm with the user before deleting work they may want. Requires an authorized Sonar account or a write-scope API key.",
   inputSchema: deleteSetInputSchema,
   annotations: {
+    openWorldHint: false,
     readOnlyHint: false,
     destructiveHint: true,
     idempotentHint: true,

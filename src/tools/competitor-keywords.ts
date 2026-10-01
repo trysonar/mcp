@@ -29,7 +29,7 @@ export const competitorKeywordsTool: ToolDefinition<typeof inputSchema> = {
   name: "sonar_competitor_keywords",
   title: "Competitor Keywords",
   description:
-    "Keywords a tracked competitor currently ranks for (last 7 days of SERP data), with difficulty and popularity per keyword. Pass own_app_id for gap analysis: keywords where the competitor ranks but your app doesn't are marked gap=missing. Cursor-paginated (default 50 per page). Requires a Full plan (trial counts).",
+    "Keywords a tracked competitor currently ranks for (last 7 days of SERP data), with difficulty and popularity per keyword. Pass own_app_id for gap analysis: keywords where the competitor ranks but your app doesn't are marked gap=missing. Cursor-paginated (default 50 per page). Requires an Indie plan (trial counts).",
   inputSchema,
   annotations: readAnnotations,
   async handler(args, client) {
